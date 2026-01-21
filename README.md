@@ -57,7 +57,7 @@ This app strictly avoids gambling terminology for compliance:
 ## Project Structure
 
 ```
-BetterBet/
+BB-App/
 ├── Sources/
 │   ├── App/
 │   │   └── BetterBetApp.swift       # App entry point
@@ -74,7 +74,8 @@ BetterBet/
 │   └── Models/
 │       ├── Challenge.swift          # Challenge data model
 │       └── Participant.swift        # Participant data model
-└── Info.plist                       # HealthKit permissions
+├── Info.plist                       # HealthKit permissions
+└── README.md
 ```
 
 ## Phase 1 Features (MVP)
