@@ -2,8 +2,8 @@
 //  DesignSystem.swift
 //  BetterBet
 //
-//  Neo-Brutalist Design System: "Chunky Retro" aesthetic
-//  Vibe: "Liquid Death meets Strava" - Irreverent, high-stakes, brutally honest
+//  "Clean Athletic" Design System - Phase 2
+//  Vibe: Strava meets Nike Run Club - Clean, legible, high-contrast
 //
 //  SEMANTIC FIREWALL NOTICE:
 //  This app uses commitment contract terminology, NOT gambling terms.
@@ -16,7 +16,7 @@ import SwiftUI
 // MARK: - Design System Namespace
 
 /// Central namespace for all design tokens in the Better Bet app.
-/// Enforces the "Chunky Retro" / Neo-Brutalist aesthetic throughout.
+/// Phase 2: "Clean Athletic" aesthetic - legible, modern, high-contrast.
 enum DesignSystem {
 
     // MARK: - Color Palette
@@ -28,7 +28,7 @@ enum DesignSystem {
         /// Primary text, borders, icons - Near black (#050505)
         static let inkBlack = Color(hex: "050505")
 
-        /// Accent color for highlights and hard shadows (#F4D03F)
+        /// Accent color for highlights (#F4D03F)
         static let mustard = Color(hex: "F4D03F")
 
         /// Failed states, warnings, elimination indicators (#FF453A)
@@ -40,44 +40,58 @@ enum DesignSystem {
         /// Secondary text, disabled states
         static let inkGray = Color(hex: "6B6B6B")
 
-        /// Card/component backgrounds - Pure white for contrast
+        /// Tertiary text, hints
+        static let lightGray = Color(hex: "9B9B9B")
+
+        /// Card/component backgrounds - Pure white
         static let cardWhite = Color.white
+
+        /// Subtle shadow color
+        static let shadowColor = Color.black.opacity(0.1)
     }
 
     // MARK: - Typography
 
     enum Typography {
-        /// Large display headlines - Heavy serif impact
-        /// Ideal: Cooper Black, Fallback: System Serif Heavy
+        /// Large display headlines - Cooper Black style (serif black)
+        /// Used sparingly for impact
         static func headline(_ size: CGFloat = 32) -> Font {
-            // Cooper Black is not a system font, using serif with black weight
             .system(size: size, weight: .black, design: .serif)
         }
 
-        /// Section titles and emphasis
-        static func title(_ size: CGFloat = 24) -> Font {
-            .system(size: size, weight: .bold, design: .serif)
+        /// Section titles - Bold condensed feel
+        static func title(_ size: CGFloat = 22) -> Font {
+            .system(size: size, weight: .bold, design: .default)
         }
 
-        /// Primary body text - Clean geometric sans
-        /// Ideal: DM Sans, Fallback: System Rounded
+        /// Data display - Condensed, athletic look (SF Pro style)
+        static func data(_ size: CGFloat = 28) -> Font {
+            .system(size: size, weight: .semibold, design: .default)
+        }
+
+        /// Primary body text - Clean sans-serif
         static func body(_ size: CGFloat = 16) -> Font {
-            .system(size: size, weight: .medium, design: .rounded)
+            .system(size: size, weight: .medium, design: .default)
         }
 
         /// Secondary text, captions
         static func caption(_ size: CGFloat = 14) -> Font {
-            .system(size: size, weight: .regular, design: .rounded)
+            .system(size: size, weight: .regular, design: .default)
         }
 
-        /// Button labels - Bold and commanding
-        static func button(_ size: CGFloat = 18) -> Font {
-            .system(size: size, weight: .bold, design: .rounded)
+        /// Button labels - Bold and clear
+        static func button(_ size: CGFloat = 17) -> Font {
+            .system(size: size, weight: .semibold, design: .default)
         }
 
-        /// Monospace for numbers/stats
+        /// Monospace for numbers/stats - Tabular figures
         static func mono(_ size: CGFloat = 16) -> Font {
-            .system(size: size, weight: .semibold, design: .monospaced)
+            .system(size: size, weight: .medium, design: .monospaced)
+        }
+
+        /// Small labels, tags
+        static func label(_ size: CGFloat = 12) -> Font {
+            .system(size: size, weight: .semibold, design: .default)
         }
     }
 
@@ -93,26 +107,58 @@ enum DesignSystem {
         static let xxl: CGFloat = 48
     }
 
-    // MARK: - Border & Shadow Constants
+    // MARK: - Border & Radius Constants (Clean Athletic Style)
 
     enum Borders {
-        /// Standard thick border width for Neo-Brutalist style
-        static let thickness: CGFloat = 3
+        /// Clean single border - 2px solid black
+        static let thickness: CGFloat = 2
 
-        /// Minimal corner radius (sharp aesthetic)
-        static let radiusSharp: CGFloat = 0
-        static let radiusSmall: CGFloat = 4
-        static let radiusMedium: CGFloat = 8
+        /// Card corner radius - tactile but not sharp
+        static let radiusCard: CGFloat = 12
+
+        /// Button corner radius
+        static let radiusButton: CGFloat = 12
+
+        /// Small elements (tags, badges)
+        static let radiusSmall: CGFloat = 8
+
+        /// Pill shape for specific elements
+        static let radiusPill: CGFloat = 100
     }
 
-    enum Shadows {
-        /// Hard shadow offset (no blur - brutalist style)
-        static let offset: CGSize = CGSize(width: 4, height: 4)
-        static let offsetSmall: CGSize = CGSize(width: 2, height: 2)
-        static let offsetLarge: CGSize = CGSize(width: 6, height: 6)
+    // MARK: - Shadows (Subtle, not brutal)
 
-        /// Shadow blur radius (always 0 for hard shadows)
-        static let blur: CGFloat = 0
+    enum Shadows {
+        /// Standard card shadow - subtle depth
+        static let cardShadow = Shadow(
+            color: Color.black.opacity(0.08),
+            radius: 8,
+            x: 0,
+            y: 4
+        )
+
+        /// Elevated element shadow
+        static let elevatedShadow = Shadow(
+            color: Color.black.opacity(0.12),
+            radius: 12,
+            x: 0,
+            y: 6
+        )
+
+        /// Pressed/active state shadow
+        static let pressedShadow = Shadow(
+            color: Color.black.opacity(0.04),
+            radius: 2,
+            x: 0,
+            y: 1
+        )
+    }
+
+    struct Shadow {
+        let color: Color
+        let radius: CGFloat
+        let x: CGFloat
+        let y: CGFloat
     }
 }
 
@@ -145,342 +191,495 @@ extension Color {
     }
 }
 
-// MARK: - Neo-Brutalist View Modifier
+// MARK: - Clean Card Modifier
 
-/// The signature "Better Bet" style modifier.
-/// Applies thick borders, hard shadows, and cream/white fills.
-struct NeoBrutalistModifier: ViewModifier {
-    var backgroundColor: Color
-    var borderColor: Color
-    var shadowColor: Color
-    var cornerRadius: CGFloat
-    var shadowOffset: CGSize
-
-    init(
-        backgroundColor: Color = DesignSystem.Colors.cardWhite,
-        borderColor: Color = DesignSystem.Colors.inkBlack,
-        shadowColor: Color = DesignSystem.Colors.inkBlack,
-        cornerRadius: CGFloat = DesignSystem.Borders.radiusSmall,
-        shadowOffset: CGSize = DesignSystem.Shadows.offset
-    ) {
-        self.backgroundColor = backgroundColor
-        self.borderColor = borderColor
-        self.shadowColor = shadowColor
-        self.cornerRadius = cornerRadius
-        self.shadowOffset = shadowOffset
-    }
-
-    func body(content: Content) -> some View {
-        content
-            .background(backgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(borderColor, lineWidth: DesignSystem.Borders.thickness)
-            )
-            .shadow(
-                color: shadowColor,
-                radius: DesignSystem.Shadows.blur,
-                x: shadowOffset.width,
-                y: shadowOffset.height
-            )
-    }
-}
-
-/// Accent variant with mustard shadow for highlights
-struct NeoBrutalistAccentModifier: ViewModifier {
+/// Clean Athletic card style - white background, 2px border, subtle shadow
+struct CleanCardModifier: ViewModifier {
+    var hasBorder: Bool
     var cornerRadius: CGFloat
 
-    init(cornerRadius: CGFloat = DesignSystem.Borders.radiusSmall) {
+    init(hasBorder: Bool = true, cornerRadius: CGFloat = DesignSystem.Borders.radiusCard) {
+        self.hasBorder = hasBorder
         self.cornerRadius = cornerRadius
     }
 
     func body(content: Content) -> some View {
         content
-            .background(DesignSystem.Colors.mustard)
+            .background(DesignSystem.Colors.cardWhite)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                    .stroke(
+                        hasBorder ? DesignSystem.Colors.inkBlack : Color.clear,
+                        lineWidth: DesignSystem.Borders.thickness
+                    )
             )
             .shadow(
-                color: DesignSystem.Colors.inkBlack,
-                radius: DesignSystem.Shadows.blur,
-                x: DesignSystem.Shadows.offset.width,
-                y: DesignSystem.Shadows.offset.height
+                color: DesignSystem.Shadows.cardShadow.color,
+                radius: DesignSystem.Shadows.cardShadow.radius,
+                x: DesignSystem.Shadows.cardShadow.x,
+                y: DesignSystem.Shadows.cardShadow.y
             )
     }
 }
 
-// MARK: - View Extensions for Easy Access
+// MARK: - View Extensions
 
 extension View {
-    /// Apply the signature Neo-Brutalist card style
-    /// - Parameters:
-    ///   - backgroundColor: Fill color (default: white)
-    ///   - shadowColor: Hard shadow color (default: inkBlack)
-    ///   - cornerRadius: Corner radius (default: 4px - minimal)
-    func neoBrutalist(
-        backgroundColor: Color = DesignSystem.Colors.cardWhite,
-        borderColor: Color = DesignSystem.Colors.inkBlack,
-        shadowColor: Color = DesignSystem.Colors.inkBlack,
-        cornerRadius: CGFloat = DesignSystem.Borders.radiusSmall,
-        shadowOffset: CGSize = DesignSystem.Shadows.offset
-    ) -> some View {
-        modifier(NeoBrutalistModifier(
-            backgroundColor: backgroundColor,
-            borderColor: borderColor,
-            shadowColor: shadowColor,
-            cornerRadius: cornerRadius,
-            shadowOffset: shadowOffset
-        ))
+    /// Apply clean card style with 2px black border and subtle shadow
+    func cleanCard(hasBorder: Bool = true, cornerRadius: CGFloat = DesignSystem.Borders.radiusCard) -> some View {
+        modifier(CleanCardModifier(hasBorder: hasBorder, cornerRadius: cornerRadius))
     }
 
-    /// Apply Neo-Brutalist style with mustard accent (for CTAs, highlights)
-    func neoBrutalistAccent(cornerRadius: CGFloat = DesignSystem.Borders.radiusSmall) -> some View {
-        modifier(NeoBrutalistAccentModifier(cornerRadius: cornerRadius))
+    /// Apply subtle shadow only (no border)
+    func subtleShadow() -> some View {
+        self.shadow(
+            color: DesignSystem.Shadows.cardShadow.color,
+            radius: DesignSystem.Shadows.cardShadow.radius,
+            x: DesignSystem.Shadows.cardShadow.x,
+            y: DesignSystem.Shadows.cardShadow.y
+        )
+    }
+
+    /// Apply elevated shadow for floating elements
+    func elevatedShadow() -> some View {
+        self.shadow(
+            color: DesignSystem.Shadows.elevatedShadow.color,
+            radius: DesignSystem.Shadows.elevatedShadow.radius,
+            x: DesignSystem.Shadows.elevatedShadow.x,
+            y: DesignSystem.Shadows.elevatedShadow.y
+        )
     }
 }
 
-// MARK: - Reusable Button Style
+// MARK: - Primary Button Style (Black fill, white text)
 
-/// Chunky, pressable button style for primary actions
-struct ChunkyButtonStyle: ButtonStyle {
-    var backgroundColor: Color
-    var foregroundColor: Color
-    var isDestructive: Bool
+/// Primary CTA button - "Lock It In" style
+struct PrimaryButtonStyle: ButtonStyle {
+    var isEnabled: Bool
 
-    init(
-        backgroundColor: Color = DesignSystem.Colors.mustard,
-        foregroundColor: Color = DesignSystem.Colors.inkBlack,
-        isDestructive: Bool = false
-    ) {
-        self.backgroundColor = isDestructive ? DesignSystem.Colors.alertRed : backgroundColor
-        self.foregroundColor = isDestructive ? .white : foregroundColor
-        self.isDestructive = isDestructive
+    init(isEnabled: Bool = true) {
+        self.isEnabled = isEnabled
     }
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(DesignSystem.Typography.button())
-            .foregroundColor(foregroundColor)
+            .foregroundColor(.white)
             .padding(.horizontal, DesignSystem.Spacing.lg)
             .padding(.vertical, DesignSystem.Spacing.md)
-            .background(backgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall)
-                    .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
-            )
-            .shadow(
-                color: DesignSystem.Colors.inkBlack,
-                radius: DesignSystem.Shadows.blur,
-                x: configuration.isPressed ? 1 : DesignSystem.Shadows.offset.width,
-                y: configuration.isPressed ? 1 : DesignSystem.Shadows.offset.height
-            )
-            .offset(
-                x: configuration.isPressed ? 3 : 0,
-                y: configuration.isPressed ? 3 : 0
-            )
+            .frame(maxWidth: .infinity)
+            .background(isEnabled ? DesignSystem.Colors.inkBlack : DesignSystem.Colors.inkGray)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton))
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 
-/// Secondary/outline button style
-struct OutlineButtonStyle: ButtonStyle {
+/// Secondary button - outline style
+struct SecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(DesignSystem.Typography.button())
             .foregroundColor(DesignSystem.Colors.inkBlack)
             .padding(.horizontal, DesignSystem.Spacing.lg)
             .padding(.vertical, DesignSystem.Spacing.md)
-            .background(DesignSystem.Colors.background)
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
+            .frame(maxWidth: .infinity)
+            .background(DesignSystem.Colors.cardWhite)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton))
             .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall)
+                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton)
                     .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
             )
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+/// Destructive button - red fill
+struct DestructiveButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(DesignSystem.Typography.button())
+            .foregroundColor(.white)
+            .padding(.horizontal, DesignSystem.Spacing.lg)
+            .padding(.vertical, DesignSystem.Spacing.md)
+            .frame(maxWidth: .infinity)
+            .background(DesignSystem.Colors.alertRed)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton))
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 
 // MARK: - Button Style Extensions
 
-extension ButtonStyle where Self == ChunkyButtonStyle {
-    /// Primary chunky button with mustard background
-    static var chunky: ChunkyButtonStyle { ChunkyButtonStyle() }
+extension ButtonStyle where Self == PrimaryButtonStyle {
+    /// Primary black button - "Lock It In"
+    static var primary: PrimaryButtonStyle { PrimaryButtonStyle() }
 
-    /// Destructive chunky button with red background
-    static var chunkyDestructive: ChunkyButtonStyle { ChunkyButtonStyle(isDestructive: true) }
-
-    /// Money/success themed button
-    static var chunkyMoney: ChunkyButtonStyle {
-        ChunkyButtonStyle(backgroundColor: DesignSystem.Colors.moneyGreen, foregroundColor: .white)
-    }
+    /// Disabled primary button
+    static var primaryDisabled: PrimaryButtonStyle { PrimaryButtonStyle(isEnabled: false) }
 }
 
-extension ButtonStyle where Self == OutlineButtonStyle {
+extension ButtonStyle where Self == SecondaryButtonStyle {
     /// Secondary outline button
-    static var outline: OutlineButtonStyle { OutlineButtonStyle() }
+    static var secondary: SecondaryButtonStyle { SecondaryButtonStyle() }
 }
 
-// MARK: - Starburst Badge Shape (for Pot Display)
-
-/// Jagged starburst shape for highlighting important values (like the Pot)
-struct StarburstShape: Shape {
-    var points: Int
-    var innerRadiusRatio: CGFloat
-
-    init(points: Int = 12, innerRadiusRatio: CGFloat = 0.7) {
-        self.points = points
-        self.innerRadiusRatio = innerRadiusRatio
-    }
-
-    func path(in rect: CGRect) -> Path {
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let outerRadius = min(rect.width, rect.height) / 2
-        let innerRadius = outerRadius * innerRadiusRatio
-
-        var path = Path()
-        let angleStep = .pi / CGFloat(points)
-
-        for i in 0..<(points * 2) {
-            let radius = i.isMultiple(of: 2) ? outerRadius : innerRadius
-            let angle = CGFloat(i) * angleStep - .pi / 2
-            let point = CGPoint(
-                x: center.x + cos(angle) * radius,
-                y: center.y + sin(angle) * radius
-            )
-
-            if i == 0 {
-                path.move(to: point)
-            } else {
-                path.addLine(to: point)
-            }
-        }
-        path.closeSubpath()
-        return path
-    }
+extension ButtonStyle where Self == DestructiveButtonStyle {
+    /// Destructive red button
+    static var destructive: DestructiveButtonStyle { DestructiveButtonStyle() }
 }
 
-// MARK: - Progress Bar Style
+// MARK: - Progress Bar (Clean Style)
 
-/// Thick-bordered progress bar matching the Neo-Brutalist aesthetic
-struct ChunkyProgressBar: View {
+/// Clean progress bar with 2px border
+struct ProgressBar: View {
     var progress: Double // 0.0 to 1.0
     var fillColor: Color
     var height: CGFloat
+    var showBorder: Bool
 
     init(
         progress: Double,
         fillColor: Color = DesignSystem.Colors.moneyGreen,
-        height: CGFloat = 24
+        height: CGFloat = 12,
+        showBorder: Bool = true
     ) {
         self.progress = min(max(progress, 0), 1)
         self.fillColor = fillColor
         self.height = height
+        self.showBorder = showBorder
     }
 
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 // Background track
-                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall)
+                RoundedRectangle(cornerRadius: height / 2)
                     .fill(DesignSystem.Colors.background)
 
                 // Fill bar
-                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall)
+                RoundedRectangle(cornerRadius: height / 2)
                     .fill(fillColor)
-                    .frame(width: geometry.size.width * progress)
+                    .frame(width: max(geometry.size.width * progress, height))
 
                 // Border overlay
-                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall)
-                    .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                if showBorder {
+                    RoundedRectangle(cornerRadius: height / 2)
+                        .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                }
             }
         }
         .frame(height: height)
     }
 }
 
+// MARK: - Pot Badge (Clean Circle Style)
+
+/// Clean circular badge for pot display
+struct PotBadge: View {
+    let amount: Double
+    var size: CGFloat
+
+    init(amount: Double, size: CGFloat = 80) {
+        self.amount = amount
+        self.size = size
+    }
+
+    var body: some View {
+        ZStack {
+            // Background circle
+            Circle()
+                .fill(DesignSystem.Colors.moneyGreen)
+                .frame(width: size, height: size)
+
+            // Border
+            Circle()
+                .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                .frame(width: size, height: size)
+
+            // Amount display
+            VStack(spacing: -2) {
+                Text("POT")
+                    .font(DesignSystem.Typography.label(10))
+                    .fontWeight(.bold)
+                    .foregroundColor(.white.opacity(0.8))
+
+                Text("$\(Int(amount))")
+                    .font(DesignSystem.Typography.data(size * 0.28))
+                    .foregroundColor(.white)
+            }
+        }
+        .subtleShadow()
+    }
+}
+
+// MARK: - Status Badge
+
+/// Clean status badge for challenge states
+struct StatusBadge: View {
+    let status: ChallengeStatus
+    var size: BadgeSize
+
+    enum BadgeSize {
+        case small, medium
+
+        var fontSize: CGFloat {
+            switch self {
+            case .small: return 10
+            case .medium: return 12
+            }
+        }
+
+        var padding: CGFloat {
+            switch self {
+            case .small: return 6
+            case .medium: return 8
+            }
+        }
+    }
+
+    init(status: ChallengeStatus, size: BadgeSize = .medium) {
+        self.status = status
+        self.size = size
+    }
+
+    var body: some View {
+        Text(status.text)
+            .font(DesignSystem.Typography.label(size.fontSize))
+            .foregroundColor(status.textColor)
+            .padding(.horizontal, size.padding)
+            .padding(.vertical, size.padding / 2)
+            .background(status.backgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall)
+                    .stroke(status.borderColor, lineWidth: 1.5)
+            )
+    }
+}
+
+enum ChallengeStatus {
+    case onTrack
+    case atRisk
+    case failed
+    case completed
+
+    var text: String {
+        switch self {
+        case .onTrack: return "ON TRACK"
+        case .atRisk: return "AT RISK"
+        case .failed: return "FAILED"
+        case .completed: return "COMPLETE"
+        }
+    }
+
+    var backgroundColor: Color {
+        switch self {
+        case .onTrack: return DesignSystem.Colors.moneyGreen.opacity(0.15)
+        case .atRisk: return DesignSystem.Colors.mustard.opacity(0.15)
+        case .failed: return DesignSystem.Colors.alertRed.opacity(0.15)
+        case .completed: return DesignSystem.Colors.moneyGreen.opacity(0.15)
+        }
+    }
+
+    var textColor: Color {
+        switch self {
+        case .onTrack: return DesignSystem.Colors.moneyGreen
+        case .atRisk: return Color(hex: "B8860B") // Darker mustard
+        case .failed: return DesignSystem.Colors.alertRed
+        case .completed: return DesignSystem.Colors.moneyGreen
+        }
+    }
+
+    var borderColor: Color {
+        switch self {
+        case .onTrack: return DesignSystem.Colors.moneyGreen.opacity(0.3)
+        case .atRisk: return DesignSystem.Colors.mustard.opacity(0.3)
+        case .failed: return DesignSystem.Colors.alertRed.opacity(0.3)
+        case .completed: return DesignSystem.Colors.moneyGreen.opacity(0.3)
+        }
+    }
+}
+
+// MARK: - Challenge Mode Card
+
+/// Selection card for challenge types
+struct ChallengeModeCard: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? DesignSystem.Colors.inkBlack : DesignSystem.Colors.background)
+                        .frame(width: 48, height: 48)
+
+                    Image(systemName: icon)
+                        .font(.system(size: 22))
+                        .foregroundColor(isSelected ? .white : DesignSystem.Colors.inkBlack)
+                }
+
+                // Text
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(DesignSystem.Typography.body())
+                        .fontWeight(.semibold)
+                        .foregroundColor(DesignSystem.Colors.inkBlack)
+
+                    Text(subtitle)
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundColor(DesignSystem.Colors.inkGray)
+                }
+
+                Spacer()
+
+                // Checkmark
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(DesignSystem.Colors.moneyGreen)
+                }
+            }
+            .padding(DesignSystem.Spacing.md)
+            .background(DesignSystem.Colors.cardWhite)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusCard))
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusCard)
+                    .stroke(
+                        isSelected ? DesignSystem.Colors.inkBlack : DesignSystem.Colors.inkBlack.opacity(0.2),
+                        lineWidth: isSelected ? DesignSystem.Borders.thickness : 1
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Stake Selector
+
+/// Pill selector for stake amounts
+struct StakeSelector: View {
+    @Binding var selectedAmount: Double
+    let amounts: [Double]
+
+    var body: some View {
+        HStack(spacing: DesignSystem.Spacing.sm) {
+            ForEach(amounts, id: \.self) { amount in
+                StakePill(
+                    amount: amount,
+                    isSelected: selectedAmount == amount,
+                    action: { selectedAmount = amount }
+                )
+            }
+        }
+    }
+}
+
+struct StakePill: View {
+    let amount: Double
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text("$\(Int(amount))")
+                .font(DesignSystem.Typography.button())
+                .foregroundColor(isSelected ? .white : DesignSystem.Colors.inkBlack)
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+                .padding(.vertical, DesignSystem.Spacing.sm)
+                .background(isSelected ? DesignSystem.Colors.inkBlack : DesignSystem.Colors.cardWhite)
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton))
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton)
+                        .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - Preview Provider
 
-#Preview("Design System Showcase") {
+#Preview("Clean Athletic Design System") {
     ScrollView {
         VStack(spacing: DesignSystem.Spacing.lg) {
-            // Colors
-            Text("COLORS")
-                .font(DesignSystem.Typography.headline(24))
+            // Header
+            Text("Clean Athletic")
+                .font(DesignSystem.Typography.headline(28))
+                .foregroundColor(DesignSystem.Colors.inkBlack)
 
+            // Colors
             HStack(spacing: DesignSystem.Spacing.sm) {
                 colorSwatch(DesignSystem.Colors.background, "BG")
                 colorSwatch(DesignSystem.Colors.inkBlack, "Ink")
-                colorSwatch(DesignSystem.Colors.mustard, "Mustard")
+                colorSwatch(DesignSystem.Colors.mustard, "Accent")
                 colorSwatch(DesignSystem.Colors.alertRed, "Alert")
                 colorSwatch(DesignSystem.Colors.moneyGreen, "Money")
             }
 
             Divider()
 
-            // Typography
-            Text("TYPOGRAPHY")
-                .font(DesignSystem.Typography.headline(24))
-
+            // Clean Card
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                Text("Headline - Cooper Black")
-                    .font(DesignSystem.Typography.headline())
-                Text("Title - Bold Serif")
+                Text("Clean Card Style")
                     .font(DesignSystem.Typography.title())
-                Text("Body - DM Sans Medium")
-                    .font(DesignSystem.Typography.body())
-                Text("Caption - DM Sans Regular")
+                Text("2px border, 12px radius, subtle shadow")
                     .font(DesignSystem.Typography.caption())
+                    .foregroundColor(DesignSystem.Colors.inkGray)
             }
-
-            Divider()
-
-            // Components
-            Text("COMPONENTS")
-                .font(DesignSystem.Typography.headline(24))
-
-            // Card
-            Text("Neo-Brutalist Card")
-                .font(DesignSystem.Typography.body())
-                .padding()
-                .frame(maxWidth: .infinity)
-                .neoBrutalist()
-
-            // Accent Card
-            Text("Accent Card (Mustard)")
-                .font(DesignSystem.Typography.body())
-                .padding()
-                .frame(maxWidth: .infinity)
-                .neoBrutalistAccent()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(DesignSystem.Spacing.md)
+            .cleanCard()
 
             // Buttons
-            HStack(spacing: DesignSystem.Spacing.md) {
-                Button("Stake Now") {}
-                    .buttonStyle(.chunky)
+            VStack(spacing: DesignSystem.Spacing.sm) {
+                Button("Lock It In") {}
+                    .buttonStyle(.primary)
 
                 Button("Cancel") {}
-                    .buttonStyle(.outline)
+                    .buttonStyle(.secondary)
             }
+            .padding(.horizontal)
 
             // Progress Bar
-            ChunkyProgressBar(progress: 0.72)
-                .padding(.horizontal)
-
-            // Starburst Badge
-            ZStack {
-                StarburstShape(points: 16)
-                    .fill(DesignSystem.Colors.mustard)
-                    .frame(width: 120, height: 120)
-                StarburstShape(points: 16)
-                    .stroke(DesignSystem.Colors.inkBlack, lineWidth: 2)
-                    .frame(width: 120, height: 120)
-                Text("$150")
-                    .font(DesignSystem.Typography.headline(28))
-                    .foregroundColor(DesignSystem.Colors.inkBlack)
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                Text("Progress: 72%")
+                    .font(DesignSystem.Typography.caption())
+                ProgressBar(progress: 0.72)
             }
+            .padding(.horizontal)
+
+            // Pot Badge
+            PotBadge(amount: 150)
+
+            // Status Badges
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                StatusBadge(status: .onTrack)
+                StatusBadge(status: .atRisk)
+                StatusBadge(status: .failed)
+            }
+
+            // Challenge Mode Card
+            ChallengeModeCard(
+                icon: "figure.walk",
+                title: "Step Survivor",
+                subtitle: "Daily step goal",
+                isSelected: true,
+                action: {}
+            )
+            .padding(.horizontal)
         }
         .padding()
     }
@@ -490,12 +689,12 @@ struct ChunkyProgressBar: View {
 @ViewBuilder
 private func colorSwatch(_ color: Color, _ name: String) -> some View {
     VStack {
-        RoundedRectangle(cornerRadius: 4)
+        RoundedRectangle(cornerRadius: 8)
             .fill(color)
             .frame(width: 50, height: 50)
             .overlay(
-                RoundedRectangle(cornerRadius: 4)
-                    .stroke(DesignSystem.Colors.inkBlack, lineWidth: 2)
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(DesignSystem.Colors.inkBlack, lineWidth: 1.5)
             )
         Text(name)
             .font(DesignSystem.Typography.caption(10))
