@@ -389,31 +389,7 @@ enum PaceStatus {
     }
 }
 
-/// Challenge completion status
-enum ChallengeStatus {
-    case onTrack
-    case atRisk
-    case completed
-    case failed
-
-    var displayText: String {
-        switch self {
-        case .onTrack: return "On Track"
-        case .atRisk: return "At Risk"
-        case .completed: return "Complete"
-        case .failed: return "Failed"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .onTrack: return "checkmark.circle"
-        case .atRisk: return "exclamationmark.triangle"
-        case .completed: return "checkmark.seal.fill"
-        case .failed: return "xmark.circle.fill"
-        }
-    }
-}
+// Note: ChallengeStatus is defined in DesignSystem.swift
 
 /// Daily progress data point
 struct DailyProgress: Identifiable {
