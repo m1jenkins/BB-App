@@ -119,6 +119,9 @@ enum DesignSystem {
         /// Button corner radius
         static let radiusButton: CGFloat = 12
 
+        /// Medium elements (icons, containers)
+        static let radiusMedium: CGFloat = 10
+
         /// Small elements (tags, badges)
         static let radiusSmall: CGFloat = 8
 

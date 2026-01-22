@@ -4,6 +4,7 @@
 //
 //  Main dashboard showing active pledges and progress.
 //  Phase 2: "Clean Athletic" design with fitness-only focus.
+//  Now integrated with PledgeManager for real data binding.
 //
 //  SEMANTIC FIREWALL NOTICE:
 //  - "Pot" = pooled stakes, not gambling pot
@@ -15,10 +16,12 @@ import SwiftUI
 
 /// The main dashboard view showing active pledges and leaderboard.
 struct DashboardView: View {
-    @State private var healthManager = HealthManager.preview
-    @State private var activePledge = Pledge.mockStepChallenge
+    @Environment(HealthManager.self) private var healthManager
+    @State private var pledgeManager: PledgeManager?
     @State private var showCreatePledge = false
     @State private var showEliminationToast = true
+    @State private var showStepDetail = false
+    @State private var selectedPledge: Pledge?
 
     var body: some View {
         ZStack {
@@ -26,30 +29,62 @@ struct DashboardView: View {
             DesignSystem.Colors.background
                 .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: DesignSystem.Spacing.md) {
-                    // Active Pledge Card
-                    if activePledge.status == .active {
-                        ActivePledgeCard(
-                            pledge: activePledge,
-                            healthManager: healthManager
+            if let manager = pledgeManager {
+                ScrollView {
+                    VStack(spacing: DesignSystem.Spacing.md) {
+                        // Active Pledge Card
+                        if let featuredPledge = manager.featuredPledge {
+                            ActivePledgeCard(
+                                pledge: featuredPledge,
+                                healthManager: healthManager,
+                                onTap: {
+                                    selectedPledge = featuredPledge
+                                    showStepDetail = true
+                                }
+                            )
+                        } else {
+                            EmptyStateCard(onCreatePledge: { showCreatePledge = true })
+                        }
+
+                        // Leaderboard Section
+                        if let featuredPledge = manager.featuredPledge {
+                            LeaderboardCard(pledge: featuredPledge)
+                        }
+
+                        // Weekly Stats with tap for detail
+                        WeeklyStatsCard(
+                            healthManager: healthManager,
+                            pledge: manager.featuredPledge,
+                            onStatTap: { type in
+                                showStepDetail = true
+                            }
                         )
-                    } else {
-                        EmptyStateCard(onCreatePledge: { showCreatePledge = true })
+
+                        // Additional Active Pledges (if more than one)
+                        if manager.activePledges.count > 1 {
+                            OtherPledgesCard(
+                                pledges: manager.activePledges.filter { $0.id != manager.featuredPledge?.id },
+                                healthManager: healthManager,
+                                onPledgeTap: { pledge in
+                                    selectedPledge = pledge
+                                    showStepDetail = true
+                                }
+                            )
+                        }
+
+                        // Bottom padding for toast
+                        Spacer()
+                            .frame(height: 80)
                     }
-
-                    // Leaderboard Section
-                    LeaderboardCard(pledge: activePledge)
-
-                    // Weekly Stats
-                    WeeklyStatsCard(healthManager: healthManager, pledge: activePledge)
-
-                    // Bottom padding for toast
-                    Spacer()
-                        .frame(height: 80)
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.top, DesignSystem.Spacing.sm)
                 }
-                .padding(.horizontal, DesignSystem.Spacing.md)
-                .padding(.top, DesignSystem.Spacing.sm)
+                .refreshable {
+                    await manager.syncAllPledges()
+                }
+            } else {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
             }
 
             // Floating elimination toast
@@ -99,8 +134,27 @@ struct DashboardView: View {
         .sheet(isPresented: $showCreatePledge) {
             CreatePledgeView()
         }
+        .navigationDestination(isPresented: $showStepDetail) {
+            if let pledge = selectedPledge ?? pledgeManager?.featuredPledge,
+               let manager = pledgeManager {
+                StepTrackingView(
+                    pledge: pledge,
+                    healthManager: healthManager,
+                    pledgeManager: manager
+                )
+            }
+        }
         .task {
+            // Initialize pledge manager with health manager
+            if pledgeManager == nil {
+                let manager = PledgeManager(healthManager: healthManager)
+                manager.loadMockData() // Load mock data for development
+                pledgeManager = manager
+            }
+
+            // Sync pledges with health data
             await healthManager.fetchAllMetrics()
+            await pledgeManager?.syncAllPledges()
         }
     }
 }
@@ -110,6 +164,7 @@ struct DashboardView: View {
 struct ActivePledgeCard: View {
     let pledge: Pledge
     let healthManager: HealthManager
+    var onTap: (() -> Void)? = nil
 
     private var progress: Double {
         switch pledge.type {
@@ -134,72 +189,83 @@ struct ActivePledgeCard: View {
     }
 
     var body: some View {
-        VStack(spacing: DesignSystem.Spacing.md) {
-            // Header row
-            HStack {
-                // Challenge type icon and title
-                HStack(spacing: DesignSystem.Spacing.sm) {
-                    ZStack {
-                        Circle()
-                            .fill(DesignSystem.Colors.background)
-                            .frame(width: 40, height: 40)
-
-                        Image(systemName: pledge.type.icon)
-                            .font(.system(size: 18))
-                            .foregroundColor(DesignSystem.Colors.inkBlack)
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(pledge.title)
-                            .font(DesignSystem.Typography.title(18))
-                            .foregroundColor(DesignSystem.Colors.inkBlack)
-
-                        Text(pledge.timeRemaining)
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(DesignSystem.Colors.inkGray)
-                    }
-                }
-
-                Spacer()
-
-                // Pot badge
-                PotBadge(amount: pledge.potValue, size: 64)
-            }
-
-            // Progress section
-            VStack(spacing: DesignSystem.Spacing.xs) {
-                // Current progress display
-                HStack(alignment: .firstTextBaseline, spacing: DesignSystem.Spacing.xxs) {
-                    Text(currentValue)
-                        .font(DesignSystem.Typography.data(36))
-                        .foregroundColor(DesignSystem.Colors.inkBlack)
-
-                    Text("/ \(pledge.type.formatValue(pledge.targetValue)) \(pledge.type.unitLabel)")
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(DesignSystem.Colors.inkGray)
-                }
-
-                // Progress bar
-                ProgressBar(
-                    progress: min(progress, 1.0),
-                    fillColor: progressColor,
-                    height: 16
-                )
-
-                // Status row
+        Button {
+            onTap?()
+        } label: {
+            VStack(spacing: DesignSystem.Spacing.md) {
+                // Header row
                 HStack {
-                    StatusBadge(status: pledge.challengeStatus, size: .small)
+                    // Challenge type icon and title
+                    HStack(spacing: DesignSystem.Spacing.sm) {
+                        ZStack {
+                            Circle()
+                                .fill(DesignSystem.Colors.background)
+                                .frame(width: 40, height: 40)
+
+                            Image(systemName: pledge.type.icon)
+                                .font(.system(size: 18))
+                                .foregroundColor(DesignSystem.Colors.inkBlack)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(pledge.title)
+                                .font(DesignSystem.Typography.title(18))
+                                .foregroundColor(DesignSystem.Colors.inkBlack)
+
+                            Text(pledge.timeRemaining)
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.inkGray)
+                        }
+                    }
 
                     Spacer()
 
-                    Text("\(Int(progress * 100))% complete")
-                        .font(DesignSystem.Typography.caption())
-                        .foregroundColor(DesignSystem.Colors.inkGray)
+                    // Pot badge
+                    PotBadge(amount: pledge.potValue, size: 64)
+                }
+
+                // Progress section
+                VStack(spacing: DesignSystem.Spacing.xs) {
+                    // Current progress display
+                    HStack(alignment: .firstTextBaseline, spacing: DesignSystem.Spacing.xxs) {
+                        Text(currentValue)
+                            .font(DesignSystem.Typography.data(36))
+                            .foregroundColor(DesignSystem.Colors.inkBlack)
+
+                        Text("/ \(pledge.type.formatValue(pledge.targetValue)) \(pledge.type.unitLabel)")
+                            .font(DesignSystem.Typography.body())
+                            .foregroundColor(DesignSystem.Colors.inkGray)
+                    }
+
+                    // Progress bar
+                    ProgressBar(
+                        progress: min(progress, 1.0),
+                        fillColor: progressColor,
+                        height: 16
+                    )
+
+                    // Status row
+                    HStack {
+                        StatusBadge(status: pledge.challengeStatus, size: .small)
+
+                        Spacer()
+
+                        HStack(spacing: 4) {
+                            Text("\(Int(progress * 100))% complete")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.inkGray)
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12))
+                                .foregroundColor(DesignSystem.Colors.inkGray)
+                        }
+                    }
                 }
             }
+            .padding(DesignSystem.Spacing.md)
+            .cleanCard()
         }
-        .padding(DesignSystem.Spacing.md)
-        .cleanCard()
+        .buttonStyle(.plain)
     }
 
     private var progressColor: Color {
@@ -369,7 +435,8 @@ struct LeaderboardRow: View {
 
 struct WeeklyStatsCard: View {
     let healthManager: HealthManager
-    let pledge: Pledge
+    let pledge: Pledge?
+    var onStatTap: ((ChallengeType) -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
@@ -383,21 +450,24 @@ struct WeeklyStatsCard: View {
                     icon: "figure.walk",
                     value: healthManager.weeklySteps.formatted(),
                     label: "Steps",
-                    isHighlighted: pledge.type == .steps
+                    isHighlighted: pledge?.type == .steps,
+                    onTap: { onStatTap?(.steps) }
                 )
 
                 StatBox(
                     icon: "map",
                     value: String(format: "%.1f", healthManager.weeklyDistance),
                     label: "Miles",
-                    isHighlighted: pledge.type == .distance
+                    isHighlighted: pledge?.type == .distance,
+                    onTap: { onStatTap?(.distance) }
                 )
 
                 StatBox(
                     icon: "flame.fill",
                     value: Int(healthManager.weeklyActiveEnergy).formatted(),
                     label: "kcal",
-                    isHighlighted: pledge.type == .activeEnergy
+                    isHighlighted: pledge?.type == .activeEnergy,
+                    onTap: { onStatTap?(.activeEnergy) }
                 )
             }
         }
@@ -411,25 +481,96 @@ struct StatBox: View {
     let value: String
     let label: String
     var isHighlighted: Bool = false
+    var onTap: (() -> Void)? = nil
 
     var body: some View {
-        VStack(spacing: DesignSystem.Spacing.xs) {
-            Image(systemName: icon)
-                .font(.system(size: 20))
-                .foregroundColor(isHighlighted ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkGray)
+        Button {
+            onTap?()
+        } label: {
+            VStack(spacing: DesignSystem.Spacing.xs) {
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(isHighlighted ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkGray)
 
-            Text(value)
-                .font(DesignSystem.Typography.data(20))
+                Text(value)
+                    .font(DesignSystem.Typography.data(20))
+                    .foregroundColor(DesignSystem.Colors.inkBlack)
+
+                Text(label)
+                    .font(DesignSystem.Typography.caption(12))
+                    .foregroundColor(DesignSystem.Colors.inkGray)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DesignSystem.Spacing.sm)
+            .background(isHighlighted ? DesignSystem.Colors.moneyGreen.opacity(0.08) : DesignSystem.Colors.background)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Other Pledges Card
+
+struct OtherPledgesCard: View {
+    let pledges: [Pledge]
+    let healthManager: HealthManager
+    let onPledgeTap: (Pledge) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            Text("Other Active Pledges")
+                .font(DesignSystem.Typography.title(18))
                 .foregroundColor(DesignSystem.Colors.inkBlack)
 
-            Text(label)
-                .font(DesignSystem.Typography.caption(12))
-                .foregroundColor(DesignSystem.Colors.inkGray)
+            ForEach(pledges, id: \.id) { pledge in
+                Button {
+                    onPledgeTap(pledge)
+                } label: {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
+                        // Icon
+                        ZStack {
+                            Circle()
+                                .fill(DesignSystem.Colors.background)
+                                .frame(width: 40, height: 40)
+
+                            Image(systemName: pledge.type.icon)
+                                .font(.system(size: 16))
+                                .foregroundColor(DesignSystem.Colors.inkBlack)
+                        }
+
+                        // Info
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(pledge.title)
+                                .font(DesignSystem.Typography.body())
+                                .fontWeight(.medium)
+                                .foregroundColor(DesignSystem.Colors.inkBlack)
+
+                            Text("\(pledge.type.formatValue(pledge.currentProgress)) / \(pledge.type.formatValue(pledge.targetValue))")
+                                .font(DesignSystem.Typography.caption())
+                                .foregroundColor(DesignSystem.Colors.inkGray)
+                        }
+
+                        Spacer()
+
+                        // Progress percentage
+                        Text("\(Int(pledge.progressPercentage * 100))%")
+                            .font(DesignSystem.Typography.mono(14))
+                            .fontWeight(.semibold)
+                            .foregroundColor(DesignSystem.Colors.inkBlack)
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12))
+                            .foregroundColor(DesignSystem.Colors.inkGray)
+                    }
+                    .padding(DesignSystem.Spacing.sm)
+                    .background(DesignSystem.Colors.background)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
+                }
+                .buttonStyle(.plain)
+            }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, DesignSystem.Spacing.sm)
-        .background(isHighlighted ? DesignSystem.Colors.moneyGreen.opacity(0.08) : DesignSystem.Colors.background)
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
+        .padding(DesignSystem.Spacing.md)
+        .cleanCard()
     }
 }
 
@@ -494,6 +635,7 @@ struct EliminationToast: View {
 #Preview("Dashboard") {
     NavigationStack {
         DashboardView()
+            .environment(HealthManager.preview)
             .navigationTitle("Better Bet")
             .navigationBarTitleDisplayMode(.inline)
     }

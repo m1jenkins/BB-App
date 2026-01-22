@@ -3,7 +3,7 @@
 //  BetterBet
 //
 //  Main app entry point for Better Bet - a social accountability app
-//  where friends pool money to enforce habits.
+//  where friends pool money to enforce fitness habits.
 //
 //  SEMANTIC FIREWALL NOTICE:
 //  This is a COMMITMENT CONTRACT platform, NOT a gambling app.
@@ -29,7 +29,8 @@ struct BetterBetApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Challenge.self,
-            Participant.self
+            Participant.self,
+            Pledge.self  // Added Pledge model for step tracking
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
@@ -48,7 +49,7 @@ struct BetterBetApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(hasCompletedOnboarding: $hasCompletedOnboarding)
-                .preferredColorScheme(.light) // Neo-brutalist design works best in light mode
+                .preferredColorScheme(.light) // Clean Athletic design works best in light mode
         }
         .modelContainer(sharedModelContainer)
     }
@@ -71,6 +72,10 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: hasCompletedOnboarding)
+        .task {
+            // Request HealthKit authorization on app launch
+            await healthManager.requestAuthorization()
+        }
     }
 }
 
@@ -113,6 +118,41 @@ struct MainTabView: View {
             }
             .tag(0)
 
+            // Step Tracking Tab
+            NavigationStack {
+                StepDetailView(
+                    healthManager: HealthManager.preview,
+                    pledge: Pledge.mockStepChallenge
+                )
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        HStack(spacing: DesignSystem.Spacing.xs) {
+                            Image(systemName: "figure.walk")
+                                .foregroundColor(DesignSystem.Colors.moneyGreen)
+                            Text("Activity")
+                                .font(DesignSystem.Typography.title(18))
+                                .foregroundColor(DesignSystem.Colors.inkBlack)
+                        }
+                    }
+                }
+            }
+            .tabItem {
+                Label("Activity", systemImage: "figure.walk")
+            }
+            .tag(1)
+
+            // Create Challenge Tab
+            NavigationStack {
+                CreatePledgeView()
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .tabItem {
+                // SEMANTIC FIREWALL: "Pledge" not "Bet"
+                Label("Pledge", systemImage: "plus.circle.fill")
+            }
+            .tag(2)
+
             // History Tab (Placeholder)
             NavigationStack {
                 PlaceholderView(
@@ -124,37 +164,6 @@ struct MainTabView: View {
             }
             .tabItem {
                 Label("History", systemImage: "clock.arrow.circlepath")
-            }
-            .tag(1)
-
-            // Create Challenge Tab (Placeholder)
-            NavigationStack {
-                PlaceholderView(
-                    icon: "plus.circle.fill",
-                    // SEMANTIC FIREWALL: "Create Commitment" not "Place Bet"
-                    title: "New Challenge",
-                    subtitle: "Create a new commitment challenge with friends."
-                )
-                .navigationTitle("New Challenge")
-            }
-            .tabItem {
-                // SEMANTIC FIREWALL: "Pledge" not "Bet"
-                Label("Pledge", systemImage: "plus.circle.fill")
-            }
-            .tag(2)
-
-            // Friends Tab (Placeholder)
-            NavigationStack {
-                PlaceholderView(
-                    icon: "person.2.fill",
-                    title: "Friends",
-                    // SEMANTIC FIREWALL: "accountability partners" not "opponents"
-                    subtitle: "Manage your accountability partners."
-                )
-                .navigationTitle("Friends")
-            }
-            .tabItem {
-                Label("Friends", systemImage: "person.2.fill")
             }
             .tag(3)
         }
@@ -176,20 +185,16 @@ struct PlaceholderView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: DesignSystem.Spacing.md) {
-                // Icon in brutalist frame
+                // Icon in clean card
                 ZStack {
                     RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusMedium)
-                        .fill(DesignSystem.Colors.inkBlack)
-                        .frame(width: 84, height: 84)
-                        .offset(x: 4, y: 4)
-
-                    RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusMedium)
-                        .fill(DesignSystem.Colors.mustard.opacity(0.3))
+                        .fill(DesignSystem.Colors.cardWhite)
                         .frame(width: 84, height: 84)
                         .overlay(
                             RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusMedium)
-                                .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                                .stroke(DesignSystem.Colors.inkBlack.opacity(0.1), lineWidth: DesignSystem.Borders.thickness)
                         )
+                        .elevatedShadow()
 
                     Image(systemName: icon)
                         .font(.system(size: 36))
@@ -211,10 +216,11 @@ struct PlaceholderView: View {
                     .fontWeight(.bold)
                     .tracking(2)
                     .textCase(.uppercase)
-                    .foregroundColor(DesignSystem.Colors.mustard)
+                    .foregroundColor(.white)
                     .padding(.horizontal, DesignSystem.Spacing.sm)
                     .padding(.vertical, DesignSystem.Spacing.xxs)
                     .background(DesignSystem.Colors.inkBlack)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
                     .padding(.top, DesignSystem.Spacing.sm)
             }
         }
@@ -233,4 +239,5 @@ struct PlaceholderView: View {
 
 #Preview("Tab View") {
     MainTabView()
+        .environment(HealthManager.preview)
 }
