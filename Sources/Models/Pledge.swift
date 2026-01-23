@@ -74,7 +74,7 @@ enum ChallengeType: String, Codable, CaseIterable, Identifiable {
     /// Suggested targets for picker
     var suggestedTargets: [Double] {
         switch self {
-        case .steps: return [7000, 10000, 12000, 15000]
+        case .steps: return [7000, 10000, 12500, 15000]
         case .distance: return [10, 15, 20, 30]
         case .activeEnergy: return [300, 500, 750, 1000]
         }

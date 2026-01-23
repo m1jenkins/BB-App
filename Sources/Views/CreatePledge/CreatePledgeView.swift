@@ -220,18 +220,22 @@ struct SetTargetStep: View {
     let onNext: () -> Void
     let onBack: () -> Void
 
+    @State private var toastMessage: String?
+
     var body: some View {
         VStack(spacing: DesignSystem.Spacing.lg) {
             // Header
             VStack(spacing: DesignSystem.Spacing.xs) {
-                Text("Set Your Target")
+                Text("Choose Your Suffering.")
                     .font(DesignSystem.Typography.headline(28))
                     .foregroundColor(DesignSystem.Colors.inkBlack)
 
-                Text("How much can you commit to?")
+                Text("How hard are you willing to work to keep your money?")
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.inkGray)
+                    .multilineTextAlignment(.center)
             }
+            .padding(.horizontal, DesignSystem.Spacing.md)
 
             // Target display
             VStack(spacing: DesignSystem.Spacing.xs) {
@@ -239,30 +243,91 @@ struct SetTargetStep: View {
                     .font(DesignSystem.Typography.data(48))
                     .foregroundColor(DesignSystem.Colors.inkBlack)
 
-                Text(challengeType.unitLabel + " / week")
+                Text(challengeType.unitLabel + " / Day")
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(DesignSystem.Colors.inkGray)
             }
-            .padding(.vertical, DesignSystem.Spacing.lg)
+            .padding(.vertical, DesignSystem.Spacing.md)
 
-            // Target selector
-            VStack(spacing: DesignSystem.Spacing.sm) {
-                Text("Suggested targets")
-                    .font(DesignSystem.Typography.caption())
-                    .foregroundColor(DesignSystem.Colors.inkGray)
+            // Step goal cards (only for steps challenge type)
+            if challengeType == .steps {
+                VStack(spacing: DesignSystem.Spacing.sm) {
+                    StepGoalCard(
+                        steps: 7000,
+                        label: "Maintenance Mode",
+                        isSelected: targetValue == 7000,
+                        action: {
+                            targetValue = 7000
+                            toastMessage = "Playing it safe, huh?"
+                            hideToastAfterDelay()
+                        }
+                    )
 
-                HStack(spacing: DesignSystem.Spacing.sm) {
-                    ForEach(challengeType.suggestedTargets, id: \.self) { target in
-                        TargetPill(
-                            value: target,
-                            unit: challengeType.unitLabel,
-                            isSelected: targetValue == target,
-                            action: { targetValue = target }
-                        )
+                    StepGoalCard(
+                        steps: 10000,
+                        label: "The Standard",
+                        isSelected: targetValue == 10000,
+                        action: {
+                            targetValue = 10000
+                            toastMessage = nil
+                        }
+                    )
+
+                    StepGoalCard(
+                        steps: 12500,
+                        label: "Sweat Equity",
+                        isSelected: targetValue == 12500,
+                        action: {
+                            targetValue = 12500
+                            toastMessage = nil
+                        }
+                    )
+
+                    StepGoalCard(
+                        steps: 15000,
+                        label: "Savage",
+                        isSelected: targetValue == 15000,
+                        action: {
+                            targetValue = 15000
+                            toastMessage = "You're gonna regret this. Good luck."
+                            hideToastAfterDelay()
+                        }
+                    )
+                }
+                .padding(.horizontal, DesignSystem.Spacing.md)
+            } else {
+                // Default selector for other challenge types
+                VStack(spacing: DesignSystem.Spacing.sm) {
+                    Text("Suggested targets")
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundColor(DesignSystem.Colors.inkGray)
+
+                    HStack(spacing: DesignSystem.Spacing.sm) {
+                        ForEach(challengeType.suggestedTargets, id: \.self) { target in
+                            TargetPill(
+                                value: target,
+                                unit: challengeType.unitLabel,
+                                isSelected: targetValue == target,
+                                action: { targetValue = target }
+                            )
+                        }
                     }
                 }
+                .padding(.horizontal, DesignSystem.Spacing.md)
             }
-            .padding(.horizontal, DesignSystem.Spacing.md)
+
+            // Toast message
+            if let message = toastMessage {
+                Text(message)
+                    .font(DesignSystem.Typography.body(14))
+                    .fontWeight(.semibold)
+                    .foregroundColor(DesignSystem.Colors.mustard)
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.vertical, DesignSystem.Spacing.sm)
+                    .background(DesignSystem.Colors.inkBlack)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
+                    .transition(.scale.combined(with: .opacity))
+            }
 
             Spacer()
 
@@ -280,6 +345,14 @@ struct SetTargetStep: View {
             }
             .padding(.horizontal, DesignSystem.Spacing.md)
             .padding(.bottom, DesignSystem.Spacing.lg)
+        }
+    }
+
+    private func hideToastAfterDelay() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation {
+                toastMessage = nil
+            }
         }
     }
 }
@@ -306,6 +379,62 @@ struct TargetPill: View {
             .overlay(
                 RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton)
                     .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Step Goal Card (for daily step selection)
+
+struct StepGoalCard: View {
+    let steps: Int
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                action()
+            }
+        }) {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                // Step count
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(steps.formatted())")
+                        .font(DesignSystem.Typography.data(28))
+                        .foregroundColor(isSelected ? .white : DesignSystem.Colors.inkBlack)
+
+                    Text("steps/day")
+                        .font(DesignSystem.Typography.caption(12))
+                        .foregroundColor(isSelected ? .white.opacity(0.8) : DesignSystem.Colors.inkGray)
+                }
+
+                Spacer()
+
+                // Label
+                Text(label)
+                    .font(DesignSystem.Typography.body(16))
+                    .fontWeight(.bold)
+                    .foregroundColor(isSelected ? DesignSystem.Colors.mustard : DesignSystem.Colors.inkGray)
+
+                // Selection indicator
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(DesignSystem.Colors.mustard)
+                }
+            }
+            .padding(DesignSystem.Spacing.md)
+            .background(isSelected ? DesignSystem.Colors.inkBlack : DesignSystem.Colors.cardWhite)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusCard))
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusCard)
+                    .stroke(
+                        isSelected ? DesignSystem.Colors.mustard : DesignSystem.Colors.inkBlack.opacity(0.2),
+                        lineWidth: isSelected ? 3 : DesignSystem.Borders.thickness
+                    )
             )
         }
         .buttonStyle(.plain)
