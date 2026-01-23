@@ -318,6 +318,35 @@ struct DestructiveButtonStyle: ButtonStyle {
     }
 }
 
+/// Chunky button - brutalist style with hard shadow (for onboarding)
+struct ChunkyButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        ZStack {
+            // Hard shadow layer
+            RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton)
+                .fill(DesignSystem.Colors.inkBlack)
+                .offset(x: 4, y: 4)
+
+            // Button content
+            configuration.label
+                .font(DesignSystem.Typography.button(18))
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+                .padding(.vertical, DesignSystem.Spacing.md)
+                .frame(maxWidth: .infinity)
+                .background(DesignSystem.Colors.inkBlack)
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton))
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton)
+                        .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                )
+        }
+        .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+        .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
 // MARK: - Button Style Extensions
 
 extension ButtonStyle where Self == PrimaryButtonStyle {
@@ -336,6 +365,11 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
 extension ButtonStyle where Self == DestructiveButtonStyle {
     /// Destructive red button
     static var destructive: DestructiveButtonStyle { DestructiveButtonStyle() }
+}
+
+extension ButtonStyle where Self == ChunkyButtonStyle {
+    /// Chunky brutalist button with hard shadow
+    static var chunky: ChunkyButtonStyle { ChunkyButtonStyle() }
 }
 
 // MARK: - Progress Bar (Clean Style)
