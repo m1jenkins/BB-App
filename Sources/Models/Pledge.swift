@@ -3,44 +3,70 @@
 //  BetterBet
 //
 //  Core data model for fitness commitment pledges.
-//  Phase 2: Fitness-only, HealthKit-verified challenges.
+//  "Put Your Money Where Your Health Is"
 //
 //  SEMANTIC FIREWALL NOTICE:
 //  A "Pledge" is a commitment contract, NOT a bet.
 //  - "Stake" = amount committed
 //  - "Pot" = pooled stakes from participants
 //  - "Fulfilled" / "Failed" = commitment outcome (NOT win/lose)
+//  - "Commissioner" = challenge creator
+//  - "Survivors" = those who fulfilled commitments
 //
 
 import Foundation
 import SwiftData
 
-// MARK: - Challenge Type
+// MARK: - Challenge Type (Game Modes)
 
-/// Types of fitness challenges supported by HealthKit verification.
-/// Phase 2: Exclusively hardware-verified metrics - no manual "Honesty Hour".
+/// The three launch game modes for Better Bet.
+/// Each mode is designed for different fitness preferences and is HealthKit-verified.
 enum ChallengeType: String, Codable, CaseIterable, Identifiable {
-    case steps          // Daily step count
-    case distance       // Total distance (meters)
-    case activeEnergy   // Active calories burned (kcal)
+    case steps          // 👟 Step Showdown - cumulative steps
+    case distance       // 🏃 Distance Derby - total miles covered
+    case activeMinutes  // ⏱️ Active Zone - minutes of elevated heart-rate activity
 
     var id: String { rawValue }
 
-    /// Display name for the challenge type
-    var displayName: String {
+    /// Game mode display name for UI
+    var gameModeName: String {
         switch self {
-        case .steps: return "Step Survivor"
-        case .distance: return "Distance Demon"
-        case .activeEnergy: return "Calorie Burner"
+        case .steps: return "Step Showdown"
+        case .distance: return "Distance Derby"
+        case .activeMinutes: return "Active Zone"
+        }
+    }
+
+    /// Legacy display name (retained for compatibility)
+    var displayName: String { gameModeName }
+
+    /// Game mode emoji icon
+    var gameModeEmoji: String {
+        switch self {
+        case .steps: return "👟"
+        case .distance: return "🏃"
+        case .activeMinutes: return "⏱️"
+        }
+    }
+
+    /// Description of who the mode is best for
+    var gameModeDescription: String {
+        switch self {
+        case .steps: 
+            return "Best for everyone. Turns every coffee run into a strategic opportunity."
+        case .distance: 
+            return "Best for runners, cyclists, and hikers. Cover the most ground."
+        case .activeMinutes: 
+            return "Best for gym-goers and HIIT enthusiasts. Rewards effort regardless of distance."
         }
     }
 
     /// Short description of the challenge
     var subtitle: String {
         switch self {
-        case .steps: return "Daily step goal"
-        case .distance: return "Total weekly distance"
-        case .activeEnergy: return "Active energy burned"
+        case .steps: return "Cumulative step count"
+        case .distance: return "Total miles covered"
+        case .activeMinutes: return "Minutes of elevated heart-rate"
         }
     }
 
@@ -49,7 +75,7 @@ enum ChallengeType: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .steps: return "figure.walk"
         case .distance: return "map"
-        case .activeEnergy: return "flame.fill"
+        case .activeMinutes: return "timer"
         }
     }
 
@@ -58,7 +84,7 @@ enum ChallengeType: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .steps: return "steps"
         case .distance: return "miles"
-        case .activeEnergy: return "kcal"
+        case .activeMinutes: return "mins"
         }
     }
 
@@ -67,7 +93,7 @@ enum ChallengeType: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .steps: return 10000       // 10k steps/day
         case .distance: return 15       // 15 miles/week
-        case .activeEnergy: return 500  // 500 kcal/day
+        case .activeMinutes: return 150 // 150 minutes/week (WHO recommendation)
         }
     }
 
@@ -76,7 +102,7 @@ enum ChallengeType: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .steps: return [7000, 10000, 12500, 15000]
         case .distance: return [10, 15, 20, 30]
-        case .activeEnergy: return [300, 500, 750, 1000]
+        case .activeMinutes: return [90, 150, 200, 300]
         }
     }
 
@@ -87,7 +113,7 @@ enum ChallengeType: String, Codable, CaseIterable, Identifiable {
             return "\(Int(value).formatted())"
         case .distance:
             return String(format: "%.1f", value)
-        case .activeEnergy:
+        case .activeMinutes:
             return "\(Int(value).formatted())"
         }
     }
@@ -295,17 +321,17 @@ extension Pledge {
         )
     }
 
-    /// Mock calorie challenge
-    static var mockCalorieChallenge: Pledge {
+    /// Mock active minutes challenge (Active Zone)
+    static var mockActiveZoneChallenge: Pledge {
         let calendar = Calendar.current
         let startOfWeek = calendar.startOfDay(for: Date())
         let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek)!.addingTimeInterval(86399)
 
         return Pledge(
-            title: "Calorie Burner",
-            type: .activeEnergy,
-            targetValue: 3500, // 500/day * 7 days
-            currentProgress: 2100,
+            title: "Active Zone",
+            type: .activeMinutes,
+            targetValue: 150, // 150 minutes/week
+            currentProgress: 95,
             stakeAmount: 20,
             potValue: 100,
             startDate: startOfWeek,

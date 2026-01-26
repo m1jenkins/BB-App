@@ -19,27 +19,43 @@ struct OnboardingView: View {
     @State private var currentPage = 0
 
     // SEMANTIC FIREWALL: All copy here avoids gambling terminology
+    // Messaging aligned with "Put Your Money Where Your Health Is" philosophy
+    // Follows the How It Works flow from CLAUDE.md
     private let slides: [OnboardingSlide] = [
+        // Slide 1: The Hook - Core Philosophy
         OnboardingSlide(
-            icon: "😴",
-            headline: "Willpower is a Myth.",
-            subheadline: "Studies show motivation fades. You've started that habit tracker 47 times already.",
-            accentText: "Let's be honest."
+            icon: "💪",
+            headline: "Willpower is Finite.",
+            subheadline:
+                "But incentives are powerful. Better Bet isn't just a fitness tracker—it's an accountability engine that makes skipping workouts cost you.",
+            accentText: "Put your money where your health is."
         ),
+        // Slide 2: How It Works - The Flow
         OnboardingSlide(
-            icon: "🔥",
-            headline: "Collateral is Real.",
-            subheadline: "Put your money where your mouth is. Stake something you'll actually miss.",
+            icon: "🏆",
+            headline: "Here's How It Works.",
+            subheadline:
+                "Create a challenge. Invite your squad. Sweat it out. At the deadline, survivors split the pot—those who miss the mark pay the price.",
             // SEMANTIC FIREWALL: "Stake" not "Bet"
-            accentText: "Skin in the game."
+            accentText: "Create → Invite → Sweat → Payout"
         ),
+        // Slide 3: The Game Modes
         OnboardingSlide(
-            icon: "💰",
-            headline: "Profit from Your Friends.",
-            subheadline: "When they slack, you stack. The pot grows every time someone fails their commitment.",
+            icon: "📊",
+            headline: "Pick Your Battle.",
+            subheadline:
+                "👟 Step Showdown for walkers\n🏃 Distance Derby for runners\n⏱️ Active Zone for gym-goers",
+            accentText: "Three ways to compete."
+        ),
+        // Slide 4: Verification - The Trust
+        OnboardingSlide(
+            icon: "📱",
+            headline: "No Cheating. Period.",
+            subheadline:
+                "We sync directly with Apple Health. No manual entry. No honor system. If it's not tracked, it didn't happen.",
             // SEMANTIC FIREWALL: "fails their commitment" not "loses"
-            accentText: "Accountability pays."
-        )
+            accentText: "Automatic verification."
+        ),
     ]
 
     var body: some View {
@@ -53,7 +69,11 @@ struct OnboardingView: View {
                 HStack(spacing: DesignSystem.Spacing.xs) {
                     ForEach(0..<slides.count, id: \.self) { index in
                         RoundedRectangle(cornerRadius: 2)
-                            .fill(index == currentPage ? DesignSystem.Colors.inkBlack : DesignSystem.Colors.inkBlack.opacity(0.3))
+                            .fill(
+                                index == currentPage
+                                    ? DesignSystem.Colors.inkBlack
+                                    : DesignSystem.Colors.inkBlack.opacity(0.3)
+                            )
                             .frame(width: index == currentPage ? 24 : 8, height: 4)
                             .animation(.easeInOut(duration: 0.2), value: currentPage)
                     }
@@ -157,7 +177,9 @@ struct OnboardingSlideView: View {
                     .frame(width: 140, height: 140)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusMedium)
-                            .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                            .stroke(
+                                DesignSystem.Colors.inkBlack,
+                                lineWidth: DesignSystem.Borders.thickness)
                     )
 
                 // Emoji icon
@@ -202,32 +224,54 @@ struct OnboardingSlideView: View {
     OnboardingView(hasCompletedOnboarding: .constant(false))
 }
 
-#Preview("Slide 1 - Willpower") {
-    OnboardingSlideView(slide: OnboardingSlide(
-        icon: "😴",
-        headline: "Willpower is a Myth.",
-        subheadline: "Studies show motivation fades. You've started that habit tracker 47 times already.",
-        accentText: "Let's be honest."
-    ))
+#Preview("Slide 1 - Philosophy") {
+    OnboardingSlideView(
+        slide: OnboardingSlide(
+            icon: "💪",
+            headline: "Willpower is Finite.",
+            subheadline:
+                "But incentives are powerful. Better Bet isn't just a fitness tracker—it's an accountability engine that makes skipping workouts cost you.",
+            accentText: "Put your money where your health is."
+        )
+    )
     .background(DesignSystem.Colors.background)
 }
 
-#Preview("Slide 2 - Collateral") {
-    OnboardingSlideView(slide: OnboardingSlide(
-        icon: "🔥",
-        headline: "Collateral is Real.",
-        subheadline: "Put your money where your mouth is. Stake something you'll actually miss.",
-        accentText: "Skin in the game."
-    ))
+#Preview("Slide 2 - Flow") {
+    OnboardingSlideView(
+        slide: OnboardingSlide(
+            icon: "🏆",
+            headline: "Here's How It Works.",
+            subheadline:
+                "Create a challenge. Invite your squad. Sweat it out. At the deadline, survivors split the pot—those who miss the mark pay the price.",
+            accentText: "Create → Invite → Sweat → Payout"
+        )
+    )
     .background(DesignSystem.Colors.background)
 }
 
-#Preview("Slide 3 - Profit") {
-    OnboardingSlideView(slide: OnboardingSlide(
-        icon: "💰",
-        headline: "Profit from Your Friends.",
-        subheadline: "When they slack, you stack. The pot grows every time someone fails their commitment.",
-        accentText: "Accountability pays."
-    ))
+#Preview("Slide 3 - Game Modes") {
+    OnboardingSlideView(
+        slide: OnboardingSlide(
+            icon: "📊",
+            headline: "Pick Your Battle.",
+            subheadline:
+                "👟 Step Showdown for walkers\n🏃 Distance Derby for runners\n⏱️ Active Zone for gym-goers",
+            accentText: "Three ways to compete."
+        )
+    )
+    .background(DesignSystem.Colors.background)
+}
+
+#Preview("Slide 4 - Verification") {
+    OnboardingSlideView(
+        slide: OnboardingSlide(
+            icon: "📱",
+            headline: "No Cheating. Period.",
+            subheadline:
+                "We sync directly with Apple Health. No manual entry. No honor system. If it's not tracked, it didn't happen.",
+            accentText: "Automatic verification."
+        )
+    )
     .background(DesignSystem.Colors.background)
 }

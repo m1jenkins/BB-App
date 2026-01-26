@@ -127,7 +127,7 @@ final class HealthManager {
             HKQuantityType(.stepCount),
             HKQuantityType(.distanceWalkingRunning),
             HKQuantityType(.activeEnergyBurned),
-            HKObjectType.workoutType()
+            HKObjectType.workoutType(),
         ]
 
         do {
@@ -176,7 +176,7 @@ final class HealthManager {
         case .distance:
             await fetchWeeklyDistance()
             return weeklyDistance
-        case .activeEnergy:
+        case .activeMinutes:
             await fetchWeeklyActiveEnergy()
             return weeklyActiveEnergy
         }
@@ -187,9 +187,9 @@ final class HealthManager {
     /// Fetch weekly step count for challenge verification
     func fetchWeeklySteps() async {
         #if targetEnvironment(simulator)
-        await loadDummyStepData()
+            await loadDummyStepData()
         #else
-        await loadRealStepData()
+            await loadRealStepData()
         #endif
     }
 
@@ -211,7 +211,9 @@ final class HealthManager {
         var dailyData: [DailyMetricData] = []
 
         for dayOffset in 0..<7 {
-            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) else { continue }
+            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) else {
+                continue
+            }
 
             let steps: Int
             if date <= today {
@@ -255,9 +257,9 @@ final class HealthManager {
     /// Fetch weekly distance (in miles)
     func fetchWeeklyDistance() async {
         #if targetEnvironment(simulator)
-        await loadDummyDistanceData()
+            await loadDummyDistanceData()
         #else
-        await loadRealDistanceData()
+            await loadRealDistanceData()
         #endif
     }
 
@@ -279,7 +281,9 @@ final class HealthManager {
         var dailyData: [DailyMetricData] = []
 
         for dayOffset in 0..<7 {
-            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) else { continue }
+            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) else {
+                continue
+            }
 
             let distance: Double
             if date <= today {
@@ -324,9 +328,9 @@ final class HealthManager {
     /// Fetch weekly active energy (in kcal)
     func fetchWeeklyActiveEnergy() async {
         #if targetEnvironment(simulator)
-        await loadDummyActiveEnergyData()
+            await loadDummyActiveEnergyData()
         #else
-        await loadRealActiveEnergyData()
+            await loadRealActiveEnergyData()
         #endif
     }
 
@@ -348,7 +352,9 @@ final class HealthManager {
         var dailyData: [DailyMetricData] = []
 
         for dayOffset in 0..<7 {
-            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) else { continue }
+            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) else {
+                continue
+            }
 
             let energy: Double
             if date <= today {
@@ -393,7 +399,7 @@ final class HealthManager {
         let calendar = Calendar.current
         let today = Date()
         var startOfWeek = today
-        while calendar.component(.weekday, from: startOfWeek) != 2 { // Monday
+        while calendar.component(.weekday, from: startOfWeek) != 2 {  // Monday
             startOfWeek = calendar.date(byAdding: .day, value: -1, to: startOfWeek)!
         }
         startOfWeek = calendar.startOfDay(for: startOfWeek)
@@ -427,7 +433,8 @@ final class HealthManager {
         query.initialResultsHandler = { _, results, error in
             Task { @MainActor in
                 guard let results = results, error == nil else {
-                    self.errorMessage = "Failed to fetch data: \(error?.localizedDescription ?? "Unknown error")"
+                    self.errorMessage =
+                        "Failed to fetch data: \(error?.localizedDescription ?? "Unknown error")"
                     return
                 }
 
@@ -451,7 +458,8 @@ final class HealthManager {
 
     /// Verify if a user has met their commitment for any challenge type
     /// SEMANTIC FIREWALL: Returns "fulfilled" or "failed", not "won" or "lost"
-    func verifyCommitment(type: ChallengeType, target: Double, current: Double) -> CommitmentResult {
+    func verifyCommitment(type: ChallengeType, target: Double, current: Double) -> CommitmentResult
+    {
         if current >= target {
             return .fulfilled(current: current, target: target)
         } else {
@@ -497,7 +505,7 @@ extension HealthManager {
             DailyMetricData(date: Date().addingTimeInterval(-3 * 86400), value: 11234),
             DailyMetricData(date: Date().addingTimeInterval(-2 * 86400), value: 8567),
             DailyMetricData(date: Date().addingTimeInterval(-1 * 86400), value: 10655),
-            DailyMetricData(date: Date(), value: 8432)
+            DailyMetricData(date: Date(), value: 8432),
         ]
 
         // Distance
@@ -510,7 +518,7 @@ extension HealthManager {
             DailyMetricData(date: Date().addingTimeInterval(-3 * 86400), value: 4.1),
             DailyMetricData(date: Date().addingTimeInterval(-2 * 86400), value: 2.5),
             DailyMetricData(date: Date().addingTimeInterval(-1 * 86400), value: 3.8),
-            DailyMetricData(date: Date(), value: 2.8)
+            DailyMetricData(date: Date(), value: 2.8),
         ]
 
         // Active Energy
@@ -523,7 +531,7 @@ extension HealthManager {
             DailyMetricData(date: Date().addingTimeInterval(-3 * 86400), value: 560),
             DailyMetricData(date: Date().addingTimeInterval(-2 * 86400), value: 450),
             DailyMetricData(date: Date().addingTimeInterval(-1 * 86400), value: 530),
-            DailyMetricData(date: Date(), value: 480)
+            DailyMetricData(date: Date(), value: 480),
         ]
 
         return manager

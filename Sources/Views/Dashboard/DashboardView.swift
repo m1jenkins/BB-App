@@ -63,7 +63,9 @@ struct DashboardView: View {
                         // Additional Active Pledges (if more than one)
                         if manager.activePledges.count > 1 {
                             OtherPledgesCard(
-                                pledges: manager.activePledges.filter { $0.id != manager.featuredPledge?.id },
+                                pledges: manager.activePledges.filter {
+                                    $0.id != manager.featuredPledge?.id
+                                },
                                 healthManager: healthManager,
                                 onPledgeTap: { pledge in
                                     selectedPledge = pledge
@@ -122,7 +124,9 @@ struct DashboardView: View {
                             .clipShape(Circle())
                             .overlay(
                                 Circle()
-                                    .stroke(DesignSystem.Colors.inkBlack, lineWidth: DesignSystem.Borders.thickness)
+                                    .stroke(
+                                        DesignSystem.Colors.inkBlack,
+                                        lineWidth: DesignSystem.Borders.thickness)
                             )
                             .elevatedShadow()
                     }
@@ -136,7 +140,8 @@ struct DashboardView: View {
         }
         .navigationDestination(isPresented: $showStepDetail) {
             if let pledge = selectedPledge ?? pledgeManager?.featuredPledge,
-               let manager = pledgeManager {
+                let manager = pledgeManager
+            {
                 StepTrackingView(
                     pledge: pledge,
                     healthManager: healthManager,
@@ -148,7 +153,7 @@ struct DashboardView: View {
             // Initialize pledge manager with health manager
             if pledgeManager == nil {
                 let manager = PledgeManager(healthManager: healthManager)
-                manager.loadMockData() // Load mock data for development
+                manager.loadMockData()  // Load mock data for development
                 pledgeManager = manager
             }
 
@@ -172,7 +177,7 @@ struct ActivePledgeCard: View {
             return Double(healthManager.weeklySteps) / pledge.targetValue
         case .distance:
             return healthManager.weeklyDistance / pledge.targetValue
-        case .activeEnergy:
+        case .activeMinutes:
             return healthManager.weeklyActiveEnergy / pledge.targetValue
         }
     }
@@ -183,7 +188,7 @@ struct ActivePledgeCard: View {
             return healthManager.weeklySteps.formatted()
         case .distance:
             return String(format: "%.1f", healthManager.weeklyDistance)
-        case .activeEnergy:
+        case .activeMinutes:
             return Int(healthManager.weeklyActiveEnergy).formatted()
         }
     }
@@ -232,9 +237,11 @@ struct ActivePledgeCard: View {
                             .font(DesignSystem.Typography.data(36))
                             .foregroundColor(DesignSystem.Colors.inkBlack)
 
-                        Text("/ \(pledge.type.formatValue(pledge.targetValue)) \(pledge.type.unitLabel)")
-                            .font(DesignSystem.Typography.body())
-                            .foregroundColor(DesignSystem.Colors.inkGray)
+                        Text(
+                            "/ \(pledge.type.formatValue(pledge.targetValue)) \(pledge.type.unitLabel)"
+                        )
+                        .font(DesignSystem.Typography.body())
+                        .foregroundColor(DesignSystem.Colors.inkGray)
                     }
 
                     // Progress bar
@@ -319,12 +326,18 @@ struct LeaderboardCard: View {
 
     // Mock participants
     private let participants: [LeaderboardEntry] = [
-        LeaderboardEntry(name: "You", avatar: "🏃", progress: 0.76, isCurrentUser: true, hasFailed: false),
-        LeaderboardEntry(name: "Sarah", avatar: "💪", progress: 1.02, isCurrentUser: false, hasFailed: false),
-        LeaderboardEntry(name: "Mike", avatar: "🔥", progress: 0.84, isCurrentUser: false, hasFailed: false),
-        LeaderboardEntry(name: "Emma", avatar: "⭐", progress: 0.71, isCurrentUser: false, hasFailed: false),
-        LeaderboardEntry(name: "Dave", avatar: "😎", progress: 0.33, isCurrentUser: false, hasFailed: true),
-        LeaderboardEntry(name: "Alex", avatar: "🎯", progress: 0.97, isCurrentUser: false, hasFailed: false),
+        LeaderboardEntry(
+            name: "You", avatar: "🏃", progress: 0.76, isCurrentUser: true, hasFailed: false),
+        LeaderboardEntry(
+            name: "Sarah", avatar: "💪", progress: 1.02, isCurrentUser: false, hasFailed: false),
+        LeaderboardEntry(
+            name: "Mike", avatar: "🔥", progress: 0.84, isCurrentUser: false, hasFailed: false),
+        LeaderboardEntry(
+            name: "Emma", avatar: "⭐", progress: 0.71, isCurrentUser: false, hasFailed: false),
+        LeaderboardEntry(
+            name: "Dave", avatar: "😎", progress: 0.33, isCurrentUser: false, hasFailed: true),
+        LeaderboardEntry(
+            name: "Alex", avatar: "🎯", progress: 0.97, isCurrentUser: false, hasFailed: false),
     ]
 
     var body: some View {
@@ -373,9 +386,11 @@ struct LeaderboardRow: View {
             // Avatar
             ZStack {
                 Circle()
-                    .fill(entry.hasFailed
-                          ? DesignSystem.Colors.alertRed.opacity(0.1)
-                          : DesignSystem.Colors.background)
+                    .fill(
+                        entry.hasFailed
+                            ? DesignSystem.Colors.alertRed.opacity(0.1)
+                            : DesignSystem.Colors.background
+                    )
                     .frame(width: 40, height: 40)
 
                 Text(entry.avatar)
@@ -397,7 +412,10 @@ struct LeaderboardRow: View {
                     Text(entry.name)
                         .font(DesignSystem.Typography.body())
                         .fontWeight(.medium)
-                        .foregroundColor(entry.hasFailed ? DesignSystem.Colors.inkGray : DesignSystem.Colors.inkBlack)
+                        .foregroundColor(
+                            entry.hasFailed
+                                ? DesignSystem.Colors.inkGray : DesignSystem.Colors.inkBlack
+                        )
                         .strikethrough(entry.hasFailed)
 
                     if entry.isCurrentUser {
@@ -424,7 +442,9 @@ struct LeaderboardRow: View {
                 Text("\(Int(entry.progress * 100))%")
                     .font(DesignSystem.Typography.mono(14))
                     .fontWeight(.semibold)
-                    .foregroundColor(entry.progress >= 1.0 ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkBlack)
+                    .foregroundColor(
+                        entry.progress >= 1.0
+                            ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkBlack)
             }
         }
         .padding(.vertical, DesignSystem.Spacing.xs)
@@ -463,11 +483,11 @@ struct WeeklyStatsCard: View {
                 )
 
                 StatBox(
-                    icon: "flame.fill",
+                    icon: "timer",
                     value: Int(healthManager.weeklyActiveEnergy).formatted(),
-                    label: "kcal",
-                    isHighlighted: pledge?.type == .activeEnergy,
-                    onTap: { onStatTap?(.activeEnergy) }
+                    label: "Active Min",
+                    isHighlighted: pledge?.type == .activeMinutes,
+                    onTap: { onStatTap?(.activeMinutes) }
                 )
             }
         }
@@ -490,7 +510,9 @@ struct StatBox: View {
             VStack(spacing: DesignSystem.Spacing.xs) {
                 Image(systemName: icon)
                     .font(.system(size: 20))
-                    .foregroundColor(isHighlighted ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkGray)
+                    .foregroundColor(
+                        isHighlighted ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkGray
+                    )
 
                 Text(value)
                     .font(DesignSystem.Typography.data(20))
@@ -502,7 +524,10 @@ struct StatBox: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, DesignSystem.Spacing.sm)
-            .background(isHighlighted ? DesignSystem.Colors.moneyGreen.opacity(0.08) : DesignSystem.Colors.background)
+            .background(
+                isHighlighted
+                    ? DesignSystem.Colors.moneyGreen.opacity(0.08) : DesignSystem.Colors.background
+            )
             .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
         }
         .buttonStyle(.plain)
@@ -545,9 +570,11 @@ struct OtherPledgesCard: View {
                                 .fontWeight(.medium)
                                 .foregroundColor(DesignSystem.Colors.inkBlack)
 
-                            Text("\(pledge.type.formatValue(pledge.currentProgress)) / \(pledge.type.formatValue(pledge.targetValue))")
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.inkGray)
+                            Text(
+                                "\(pledge.type.formatValue(pledge.currentProgress)) / \(pledge.type.formatValue(pledge.targetValue))"
+                            )
+                            .font(DesignSystem.Typography.caption())
+                            .foregroundColor(DesignSystem.Colors.inkGray)
                         }
 
                         Spacer()
@@ -624,7 +651,9 @@ struct EliminationToast: View {
         .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusCard))
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusCard)
-                .stroke(DesignSystem.Colors.alertRed.opacity(0.3), lineWidth: DesignSystem.Borders.thickness)
+                .stroke(
+                    DesignSystem.Colors.alertRed.opacity(0.3),
+                    lineWidth: DesignSystem.Borders.thickness)
         )
         .elevatedShadow()
     }

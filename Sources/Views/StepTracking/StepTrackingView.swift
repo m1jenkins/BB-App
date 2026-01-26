@@ -80,7 +80,7 @@ struct ProgressRingCard: View {
         switch pledge.type {
         case .steps: return Double(healthManager.weeklySteps)
         case .distance: return healthManager.weeklyDistance
-        case .activeEnergy: return healthManager.weeklyActiveEnergy
+        case .activeMinutes: return healthManager.weeklyActiveEnergy
         }
     }
 
@@ -195,7 +195,7 @@ struct TodayStatsCard: View {
         switch pledge.type {
         case .steps: return Double(healthManager.todaySteps)
         case .distance: return healthManager.todayDistance
-        case .activeEnergy: return healthManager.todayActiveEnergy
+        case .activeMinutes: return healthManager.todayActiveEnergy
         }
     }
 
@@ -246,9 +246,10 @@ struct TodayStatsCard: View {
                 VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xxs) {
                     Text(pledge.type.formatValue(dailyTarget))
                         .font(DesignSystem.Typography.data(24))
-                        .foregroundColor(dailyTarget <= todayValue
-                                        ? DesignSystem.Colors.moneyGreen
-                                        : DesignSystem.Colors.inkBlack)
+                        .foregroundColor(
+                            dailyTarget <= todayValue
+                                ? DesignSystem.Colors.moneyGreen
+                                : DesignSystem.Colors.inkBlack)
 
                     Text("daily target")
                         .font(DesignSystem.Typography.caption())
@@ -260,16 +261,21 @@ struct TodayStatsCard: View {
             VStack(spacing: DesignSystem.Spacing.xxs) {
                 ProgressBar(
                     progress: todayProgress,
-                    fillColor: todayProgress >= 1.0 ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkBlack,
+                    fillColor: todayProgress >= 1.0
+                        ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkBlack,
                     height: 8
                 )
 
                 HStack {
-                    Text(todayProgress >= 1.0 ? "Daily goal met!" : "\(Int(todayProgress * 100))% of daily goal")
-                        .font(DesignSystem.Typography.caption(11))
-                        .foregroundColor(todayProgress >= 1.0
-                                        ? DesignSystem.Colors.moneyGreen
-                                        : DesignSystem.Colors.inkGray)
+                    Text(
+                        todayProgress >= 1.0
+                            ? "Daily goal met!" : "\(Int(todayProgress * 100))% of daily goal"
+                    )
+                    .font(DesignSystem.Typography.caption(11))
+                    .foregroundColor(
+                        todayProgress >= 1.0
+                            ? DesignSystem.Colors.moneyGreen
+                            : DesignSystem.Colors.inkGray)
 
                     Spacer()
 
@@ -301,7 +307,7 @@ struct WeeklyBreakdownCard: View {
     private var maxValue: Double {
         let maxData = dailyBreakdown.map { $0.value }.max() ?? 1
         let target = dailyBreakdown.first?.target ?? 1
-        return max(maxData, target) * 1.1 // 10% padding
+        return max(maxData, target) * 1.1  // 10% padding
     }
 
     var body: some View {
@@ -434,7 +440,8 @@ struct DailyBarView: View {
             Text(day.dayName)
                 .font(DesignSystem.Typography.caption(11))
                 .fontWeight(day.isToday ? .bold : .regular)
-                .foregroundColor(day.isToday ? DesignSystem.Colors.inkBlack : DesignSystem.Colors.inkGray)
+                .foregroundColor(
+                    day.isToday ? DesignSystem.Colors.inkBlack : DesignSystem.Colors.inkGray)
         }
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .onTapGesture { onTap() }

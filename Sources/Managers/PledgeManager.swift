@@ -12,8 +12,8 @@
 //
 
 import Foundation
-import SwiftData
 import Observation
+import SwiftData
 
 /// Manages pledge lifecycle, progress tracking, and HealthKit synchronization.
 @MainActor
@@ -41,7 +41,7 @@ final class PledgeManager {
     var lastSyncTime: Date?
 
     /// Auto-refresh timer interval (in seconds)
-    private let refreshInterval: TimeInterval = 300 // 5 minutes
+    private let refreshInterval: TimeInterval = 300  // 5 minutes
 
     // MARK: - Computed Properties
 
@@ -62,7 +62,8 @@ final class PledgeManager {
 
     /// Number of pledges on track
     var pledgesOnTrack: Int {
-        activePledges.filter { $0.challengeStatus == .onTrack || $0.challengeStatus == .completed }.count
+        activePledges.filter { $0.challengeStatus == .onTrack || $0.challengeStatus == .completed }
+            .count
     }
 
     // MARK: - Initialization
@@ -93,9 +94,11 @@ final class PledgeManager {
         case .oneWeek:
             endDate = calendar.date(byAdding: .day, value: 7, to: startDate)!.addingTimeInterval(-1)
         case .twoWeeks:
-            endDate = calendar.date(byAdding: .day, value: 14, to: startDate)!.addingTimeInterval(-1)
+            endDate = calendar.date(byAdding: .day, value: 14, to: startDate)!.addingTimeInterval(
+                -1)
         case .oneMonth:
-            endDate = calendar.date(byAdding: .month, value: 1, to: startDate)!.addingTimeInterval(-1)
+            endDate = calendar.date(byAdding: .month, value: 1, to: startDate)!.addingTimeInterval(
+                -1)
         }
 
         let pledge = Pledge(
@@ -107,7 +110,7 @@ final class PledgeManager {
             endDate: endDate,
             status: .active,
             isCurrentUser: true,
-            creatorID: "current_user" // Would be actual user ID
+            creatorID: "current_user"  // Would be actual user ID
         )
 
         activePledges.append(pledge)
@@ -207,7 +210,7 @@ final class PledgeManager {
                 currentProgress = healthManager.weeklyDistance
             }
 
-        case .activeEnergy:
+        case .activeMinutes:
             if pledge.daysRemaining <= 1 && isDailyPledge(pledge) {
                 currentProgress = healthManager.todayActiveEnergy
             } else {
@@ -221,7 +224,8 @@ final class PledgeManager {
     /// Check if a pledge is a daily pledge (1 day duration)
     private func isDailyPledge(_ pledge: Pledge) -> Bool {
         let calendar = Calendar.current
-        let days = calendar.dateComponents([.day], from: pledge.startDate, to: pledge.endDate).day ?? 0
+        let days =
+            calendar.dateComponents([.day], from: pledge.startDate, to: pledge.endDate).day ?? 0
         return days <= 1
     }
 
@@ -287,8 +291,11 @@ final class PledgeManager {
     /// Calculate expected progress based on elapsed time
     func getExpectedProgress(for pledge: Pledge) -> Double {
         let calendar = Calendar.current
-        let totalDuration = calendar.dateComponents([.second], from: pledge.startDate, to: pledge.endDate).second ?? 1
-        let elapsed = calendar.dateComponents([.second], from: pledge.startDate, to: Date()).second ?? 0
+        let totalDuration =
+            calendar.dateComponents([.second], from: pledge.startDate, to: pledge.endDate).second
+            ?? 1
+        let elapsed =
+            calendar.dateComponents([.second], from: pledge.startDate, to: Date()).second ?? 0
 
         guard totalDuration > 0 else { return 1.0 }
         return Double(elapsed) / Double(totalDuration)
@@ -302,7 +309,7 @@ final class PledgeManager {
                 DailyProgress(
                     date: data.date,
                     value: data.value,
-                    target: pledge.targetValue / 7, // Daily target for weekly pledge
+                    target: pledge.targetValue / 7,  // Daily target for weekly pledge
                     type: pledge.type
                 )
             }
@@ -315,7 +322,7 @@ final class PledgeManager {
                     type: pledge.type
                 )
             }
-        case .activeEnergy:
+        case .activeMinutes:
             return healthManager.dailyActiveEnergy.map { data in
                 DailyProgress(
                     date: data.date,
@@ -333,7 +340,7 @@ final class PledgeManager {
     func loadMockData() {
         activePledges = [
             Pledge.mockStepChallenge,
-            Pledge.mockDistanceChallenge
+            Pledge.mockDistanceChallenge,
         ]
         completedPledges = []
         featuredPledge = activePledges.first
@@ -411,7 +418,7 @@ struct DailyProgress: Identifiable {
 
     var progressPercentage: Double {
         guard target > 0 else { return 0 }
-        return min(value / target, 1.5) // Cap at 150% for display
+        return min(value / target, 1.5)  // Cap at 150% for display
     }
 
     var metTarget: Bool {
