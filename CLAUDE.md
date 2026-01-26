@@ -84,7 +84,9 @@ Sources/
 
 **Note:** HealthKit requires a physical device. Simulator uses mock data.
 
-## Design System - "Clean Athletic"
+## Design Systems
+
+### "Clean Athletic" (Original) - `DesignSystem.swift`
 
 **Colors:**
 - Background: `#F9F7F1` (warm cream)
@@ -108,6 +110,43 @@ Sources/
 - Body: System Sans (medium weight)
 
 **Spacing:** xxs: 4, xs: 8, sm: 12, md: 16, lg: 24, xl: 32, xxl: 48
+
+---
+
+### "Industrial Pop" (Neo-Brutalist) - `IndustrialPopDesignSystem.swift`
+
+**Design Philosophy:** Stark, high-stakes, utilitarian - like financial contracts and physical receipts.
+
+**Semantic Color Tokens:**
+- `IndustrialPop.Colors.surfaceMain` - #F2F2F2 (Ghost White)
+- `IndustrialPop.Colors.surfaceCard` - #FFFFFF (Pure White)
+- `IndustrialPop.Colors.textStrong` - #000000 (Jet Black)
+- `IndustrialPop.Colors.brandAccent` - #D6FF00 (Safety Yellow)
+
+**Anti-Design Rules:**
+- Border radius: 0px EVERYWHERE
+- Borders: 3px solid black (thick), 2px (standard)
+- Shadows: Hard offset only (4px 4px 0px #000) - NO BLUR
+
+**Typography:**
+- ALL fonts: Monospace (system `.monospaced`)
+- Headlines: Massive, uppercase, extra heavy weight (800-900)
+- Body: Uppercase preferred for machine-like feel
+
+**Pre-built Components:**
+- `IndustrialLayoutWrapper` - Wrapper enforcing Industrial Pop styling
+- `IndustrialNav` - Monospaced navigation header
+- `.industrial` / `.industrialSecondary` - Button styles with hard shadows
+- `.receiptCard()` modifier - Thick border + hard shadow
+- `.hardShadow()` modifier - 4px offset black shadow
+- `.thickBorder()` modifier - 3px solid black border
+- `ZigzagEdge` - Shape for torn receipt effect
+- `DitheredAvatarView` - B&W halftone-style avatars
+
+**PlaceBet Screen Components:**
+- `CollateralInputSection` - Massive currency input with yellow underline
+- `TermsReceiptCard` - Contract terms with zigzag bottom edge
+- `PeerPressureSection` - Grid of dithered B&W avatars
 
 ## Architecture Patterns
 
