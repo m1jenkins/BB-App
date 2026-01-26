@@ -51,15 +51,6 @@ struct DashboardView: View {
                             LeaderboardCard(pledge: featuredPledge)
                         }
 
-                        // Weekly Stats with tap for detail
-                        WeeklyStatsCard(
-                            healthManager: healthManager,
-                            pledge: manager.featuredPledge,
-                            onStatTap: { type in
-                                showStepDetail = true
-                            }
-                        )
-
                         // Additional Active Pledges (if more than one)
                         if manager.activePledges.count > 1 {
                             OtherPledgesCard(
@@ -142,7 +133,7 @@ struct DashboardView: View {
             if let pledge = selectedPledge ?? pledgeManager?.featuredPledge,
                 let manager = pledgeManager
             {
-                StepTrackingView(
+                PledgeDetailView(
                     pledge: pledge,
                     healthManager: healthManager,
                     pledgeManager: manager
@@ -448,89 +439,6 @@ struct LeaderboardRow: View {
             }
         }
         .padding(.vertical, DesignSystem.Spacing.xs)
-    }
-}
-
-// MARK: - Weekly Stats Card
-
-struct WeeklyStatsCard: View {
-    let healthManager: HealthManager
-    let pledge: Pledge?
-    var onStatTap: ((ChallengeType) -> Void)? = nil
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            Text("This Week")
-                .font(DesignSystem.Typography.title(18))
-                .foregroundColor(DesignSystem.Colors.inkBlack)
-
-            // Stats grid
-            HStack(spacing: DesignSystem.Spacing.sm) {
-                StatBox(
-                    icon: "figure.walk",
-                    value: healthManager.weeklySteps.formatted(),
-                    label: "Steps",
-                    isHighlighted: pledge?.type == .steps,
-                    onTap: { onStatTap?(.steps) }
-                )
-
-                StatBox(
-                    icon: "map",
-                    value: String(format: "%.1f", healthManager.weeklyDistance),
-                    label: "Miles",
-                    isHighlighted: pledge?.type == .distance,
-                    onTap: { onStatTap?(.distance) }
-                )
-
-                StatBox(
-                    icon: "timer",
-                    value: Int(healthManager.weeklyActiveEnergy).formatted(),
-                    label: "Active Min",
-                    isHighlighted: pledge?.type == .activeMinutes,
-                    onTap: { onStatTap?(.activeMinutes) }
-                )
-            }
-        }
-        .padding(DesignSystem.Spacing.md)
-        .cleanCard()
-    }
-}
-
-struct StatBox: View {
-    let icon: String
-    let value: String
-    let label: String
-    var isHighlighted: Bool = false
-    var onTap: (() -> Void)? = nil
-
-    var body: some View {
-        Button {
-            onTap?()
-        } label: {
-            VStack(spacing: DesignSystem.Spacing.xs) {
-                Image(systemName: icon)
-                    .font(.system(size: 20))
-                    .foregroundColor(
-                        isHighlighted ? DesignSystem.Colors.moneyGreen : DesignSystem.Colors.inkGray
-                    )
-
-                Text(value)
-                    .font(DesignSystem.Typography.data(20))
-                    .foregroundColor(DesignSystem.Colors.inkBlack)
-
-                Text(label)
-                    .font(DesignSystem.Typography.caption(12))
-                    .foregroundColor(DesignSystem.Colors.inkGray)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, DesignSystem.Spacing.sm)
-            .background(
-                isHighlighted
-                    ? DesignSystem.Colors.moneyGreen.opacity(0.08) : DesignSystem.Colors.background
-            )
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusSmall))
-        }
-        .buttonStyle(.plain)
     }
 }
 

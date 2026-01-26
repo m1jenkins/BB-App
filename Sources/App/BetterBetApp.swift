@@ -12,8 +12,8 @@
 //  - Forbidden: Bet, Wager, Gamble, Win, Lose (gambling context)
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 /// The main entry point for the Better Bet application.
 @main
@@ -33,7 +33,8 @@ struct BetterBetApp: App {
         let schema = Schema([
             Challenge.self,
             Participant.self,
-            Pledge.self  // Added Pledge model for step tracking
+            Pledge.self,  // Added Pledge model for step tracking
+            Friend.self,  // Added Friend model for social features
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
@@ -52,7 +53,7 @@ struct BetterBetApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(isSignedIn: $isSignedIn, hasCompletedOnboarding: $hasCompletedOnboarding)
-                .preferredColorScheme(.light) // Clean Athletic design works best in light mode
+                .preferredColorScheme(.light)  // Clean Athletic design works best in light mode
         }
         .modelContainer(sharedModelContainer)
     }
@@ -130,27 +131,24 @@ struct MainTabView: View {
             }
             .tag(0)
 
-            // Step Tracking Tab
+            // Friends Tab
             NavigationStack {
-                StepDetailView(
-                    healthManager: HealthManager.preview,
-                    pledge: Pledge.mockStepChallenge
-                )
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        HStack(spacing: DesignSystem.Spacing.xs) {
-                            Image(systemName: "figure.walk")
-                                .foregroundColor(DesignSystem.Colors.moneyGreen)
-                            Text("Activity")
-                                .font(DesignSystem.Typography.title(18))
-                                .foregroundColor(DesignSystem.Colors.inkBlack)
+                FriendsView()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            HStack(spacing: DesignSystem.Spacing.xs) {
+                                Image(systemName: "person.2.fill")
+                                    .foregroundColor(DesignSystem.Colors.mustard)
+                                Text("Friends")
+                                    .font(DesignSystem.Typography.title(18))
+                                    .foregroundColor(DesignSystem.Colors.inkBlack)
+                            }
                         }
                     }
-                }
             }
             .tabItem {
-                Label("Activity", systemImage: "figure.walk")
+                Label("Friends", systemImage: "person.2.fill")
             }
             .tag(1)
 
@@ -204,7 +202,9 @@ struct PlaceholderView: View {
                         .frame(width: 84, height: 84)
                         .overlay(
                             RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusMedium)
-                                .stroke(DesignSystem.Colors.inkBlack.opacity(0.1), lineWidth: DesignSystem.Borders.thickness)
+                                .stroke(
+                                    DesignSystem.Colors.inkBlack.opacity(0.1),
+                                    lineWidth: DesignSystem.Borders.thickness)
                         )
                         .elevatedShadow()
 
