@@ -328,9 +328,14 @@ struct DailyBreakdownCard: View {
     let healthManager: HealthManager
 
     private var dailyData: [DailyProgressData] {
-        // Generate mock daily data based on pledge type
-        healthManager.last7Days.map { date in
-            let calendar = Calendar.current
+        // Generate last 7 days starting from today
+        let calendar = Calendar.current
+        let today = Date()
+        let dates: [Date] = (0..<7).compactMap {
+            calendar.date(byAdding: .day, value: -$0, to: today)
+        }.reversed()
+
+        return dates.map { date in
             let dayOfWeek = calendar.component(.weekday, from: date)
 
             // Mock value based on day
