@@ -20,6 +20,9 @@ import SwiftData
 struct BetterBetApp: App {
     // MARK: - State
 
+    /// Tracks whether the user is signed in
+    @AppStorage("isSignedIn") private var isSignedIn = false
+
     /// Tracks whether the user has completed onboarding
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
@@ -48,7 +51,7 @@ struct BetterBetApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(hasCompletedOnboarding: $hasCompletedOnboarding)
+            ContentView(isSignedIn: $isSignedIn, hasCompletedOnboarding: $hasCompletedOnboarding)
                 .preferredColorScheme(.light) // Clean Athletic design works best in light mode
         }
         .modelContainer(sharedModelContainer)
@@ -57,24 +60,33 @@ struct BetterBetApp: App {
 
 // MARK: - Content View (Root Navigation)
 
-/// Root view that handles navigation between onboarding and main app.
+/// Root view that handles navigation between sign-in, onboarding, and main app.
 struct ContentView: View {
+    @Binding var isSignedIn: Bool
     @Binding var hasCompletedOnboarding: Bool
     @State private var healthManager = HealthManager()
 
     var body: some View {
         Group {
-            if hasCompletedOnboarding {
+            if !isSignedIn {
+                // User needs to sign in
+                SignInView(isSignedIn: $isSignedIn)
+            } else if hasCompletedOnboarding {
+                // User is signed in and has completed onboarding
                 MainTabView()
                     .environment(healthManager)
             } else {
+                // User is signed in but needs onboarding
                 OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
             }
         }
+        .animation(.easeInOut(duration: 0.3), value: isSignedIn)
         .animation(.easeInOut(duration: 0.3), value: hasCompletedOnboarding)
         .task {
-            // Request HealthKit authorization on app launch
-            await healthManager.requestAuthorization()
+            // Request HealthKit authorization on app launch (only if signed in)
+            if isSignedIn {
+                await healthManager.requestAuthorization()
+            }
         }
     }
 }
@@ -229,12 +241,16 @@ struct PlaceholderView: View {
 
 // MARK: - Previews
 
+#Preview("App - Sign In") {
+    ContentView(isSignedIn: .constant(false), hasCompletedOnboarding: .constant(false))
+}
+
 #Preview("App - Onboarding") {
-    ContentView(hasCompletedOnboarding: .constant(false))
+    ContentView(isSignedIn: .constant(true), hasCompletedOnboarding: .constant(false))
 }
 
 #Preview("App - Main") {
-    ContentView(hasCompletedOnboarding: .constant(true))
+    ContentView(isSignedIn: .constant(true), hasCompletedOnboarding: .constant(true))
 }
 
 #Preview("Tab View") {
