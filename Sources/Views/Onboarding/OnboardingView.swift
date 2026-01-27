@@ -2,276 +2,503 @@
 //  OnboardingView.swift
 //  BetterBet
 //
-//  The "Hook" - First impression that sells the commitment contract concept.
-//  Three slides that challenge conventional motivation and introduce the mechanism.
+//  Fast onboarding flow - value prop in <30 seconds.
+//  Uses new dark-first design system.
+//
+//  Flow: Value Hook → Mode Selection → Connect Tracking → Get Started
 //
 //  SEMANTIC FIREWALL NOTICE:
-//  Language here is crucial. We're selling "accountability through commitment",
-//  NOT gambling. The messaging emphasizes personal stakes and social accountability.
+//  - Approved: Pledge, Stake, Commitment, Pot, Challenge
+//  - Forbidden: Bet, Wager, Gamble, Win, Lose
 //
 
 import SwiftUI
 
-/// The onboarding flow that hooks users with the Better Bet value proposition.
-/// Uses provocative messaging to challenge conventional motivation approaches.
+/// Fast onboarding that shows value, then collects preferences.
 struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
-    @State private var currentPage = 0
-
-    // SEMANTIC FIREWALL: All copy here avoids gambling terminology
-    // Messaging aligned with "Put Your Money Where Your Health Is" philosophy
-    // Follows the How It Works flow from CLAUDE.md
-    private let slides: [OnboardingSlide] = [
-        // Slide 1: The Hook - Core Philosophy
-        OnboardingSlide(
-            icon: "💪",
-            headline: "Willpower is Finite.",
-            subheadline:
-                "But incentives are powerful. Better Bet isn't just a fitness tracker—it's an accountability engine that makes skipping workouts cost you.",
-            accentText: "Put your money where your health is."
-        ),
-        // Slide 2: How It Works - The Flow
-        OnboardingSlide(
-            icon: "🏆",
-            headline: "Here's How It Works.",
-            subheadline:
-                "Create a challenge. Invite your squad. Sweat it out. At the deadline, survivors split the pot—those who miss the mark pay the price.",
-            // SEMANTIC FIREWALL: "Stake" not "Bet"
-            accentText: "Create → Invite → Sweat → Payout"
-        ),
-        // Slide 3: The Game Modes
-        OnboardingSlide(
-            icon: "📊",
-            headline: "Pick Your Battle.",
-            subheadline:
-                "👟 Step Showdown for walkers\n🏃 Distance Derby for runners\n⏱️ Active Zone for gym-goers",
-            accentText: "Three ways to compete."
-        ),
-        // Slide 4: Verification - The Trust
-        OnboardingSlide(
-            icon: "📱",
-            headline: "No Cheating. Period.",
-            subheadline:
-                "We sync directly with Apple Health. No manual entry. No honor system. If it's not tracked, it didn't happen.",
-            // SEMANTIC FIREWALL: "fails their commitment" not "loses"
-            accentText: "Automatic verification."
-        ),
-    ]
+    @State private var currentStep = 0
+    @State private var selectedMode: ChallengeMode = .steps
+    @State private var hasRequestedHealth = false
 
     var body: some View {
         ZStack {
-            // Background
-            DesignSystem.Colors.background
+            // Dark background
+            BB.Colors.bgPrimary
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Page indicator
-                HStack(spacing: DesignSystem.Spacing.xs) {
-                    ForEach(0..<slides.count, id: \.self) { index in
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(
-                                index == currentPage
-                                    ? DesignSystem.Colors.inkBlack
-                                    : DesignSystem.Colors.inkBlack.opacity(0.3)
-                            )
-                            .frame(width: index == currentPage ? 24 : 8, height: 4)
-                            .animation(.easeInOut(duration: 0.2), value: currentPage)
-                    }
-                }
-                .padding(.top, DesignSystem.Spacing.lg)
+                // Progress indicator
+                ProgressIndicator(currentStep: currentStep, totalSteps: 4)
+                    .padding(.top, BB.Spacing.md)
 
-                // Slides
-                TabView(selection: $currentPage) {
-                    ForEach(Array(slides.enumerated()), id: \.offset) { index, slide in
-                        OnboardingSlideView(slide: slide)
-                            .tag(index)
-                    }
+                // Content
+                TabView(selection: $currentStep) {
+                    // Step 0: Value Hook
+                    ValueHookStep()
+                        .tag(0)
+
+                    // Step 1: How It Works
+                    HowItWorksStep()
+                        .tag(1)
+
+                    // Step 2: Mode Selection
+                    ModeSelectionStep(selectedMode: $selectedMode)
+                        .tag(2)
+
+                    // Step 3: Connect Tracking
+                    ConnectTrackingStep(hasRequestedHealth: $hasRequestedHealth)
+                        .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.easeInOut, value: currentPage)
+                .animation(.easeInOut(duration: 0.3), value: currentStep)
 
-                // Bottom section with CTA
-                VStack(spacing: DesignSystem.Spacing.md) {
-                    if currentPage == slides.count - 1 {
-                        // Final slide - Show the main CTA
-                        // SEMANTIC FIREWALL: "Stake Your Claim" not "Place Your Bet"
-                        Button {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                hasCompletedOnboarding = true
-                            }
-                        } label: {
-                            HStack {
-                                Text("Stake Your Claim")
-                                Image(systemName: "arrow.right")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.chunky)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-
-                    } else {
-                        // Not final slide - Show next button
-                        Button {
-                            withAnimation {
-                                currentPage += 1
-                            }
-                        } label: {
-                            HStack {
-                                Text("Next")
-                                Image(systemName: "arrow.right")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.chunky)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                // Bottom CTA
+                VStack(spacing: BB.Spacing.sm) {
+                    Button(ctaText) {
+                        BB.Haptics.medium()
+                        handleCTA()
                     }
+                    .buttonStyle(.bbPrimary)
+                    .padding(.horizontal, BB.Spacing.lg)
 
-                    // Skip option (subtle)
-                    if currentPage < slides.count - 1 {
-                        Button {
+                    // Skip (not on final step)
+                    if currentStep < 3 {
+                        Button("Skip") {
                             withAnimation {
-                                currentPage = slides.count - 1
+                                currentStep = 3
                             }
-                        } label: {
-                            Text("Skip")
-                                .font(DesignSystem.Typography.caption())
-                                .foregroundColor(DesignSystem.Colors.inkGray)
                         }
+                        .font(BB.Typography.caption())
+                        .foregroundColor(BB.Colors.textSecondary)
                     }
                 }
-                .padding(.bottom, DesignSystem.Spacing.xxl)
+                .padding(.bottom, BB.Spacing.xxl)
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+
+    private var ctaText: String {
+        switch currentStep {
+        case 0, 1, 2: return "Continue"
+        case 3: return hasRequestedHealth ? "Get Started" : "Connect Apple Health"
+        default: return "Continue"
+        }
+    }
+
+    private func handleCTA() {
+        if currentStep < 3 {
+            withAnimation {
+                currentStep += 1
+            }
+        } else if !hasRequestedHealth {
+            // Would trigger HealthKit permission
+            hasRequestedHealth = true
+        } else {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                hasCompletedOnboarding = true
             }
         }
     }
 }
 
-// MARK: - Onboarding Slide Data Model
+// MARK: - Progress Indicator
 
-struct OnboardingSlide {
-    let icon: String
-    let headline: String
-    let subheadline: String
-    let accentText: String
-}
-
-// MARK: - Individual Slide View
-
-struct OnboardingSlideView: View {
-    let slide: OnboardingSlide
+struct ProgressIndicator: View {
+    let currentStep: Int
+    let totalSteps: Int
 
     var body: some View {
-        VStack(spacing: DesignSystem.Spacing.lg) {
+        HStack(spacing: BB.Spacing.xs) {
+            ForEach(0..<totalSteps, id: \.self) { index in
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(index <= currentStep ? BB.Colors.accent : BB.Colors.divider)
+                    .frame(height: 3)
+                    .animation(.easeInOut(duration: 0.2), value: currentStep)
+            }
+        }
+        .padding(.horizontal, BB.Spacing.lg)
+    }
+}
+
+// MARK: - Step 0: Value Hook
+
+struct ValueHookStep: View {
+    var body: some View {
+        VStack(spacing: BB.Spacing.lg) {
             Spacer()
 
-            // Icon in a brutalist frame
+            // Icon
             ZStack {
-                // Hard shadow
-                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusMedium)
-                    .fill(DesignSystem.Colors.inkBlack)
-                    .frame(width: 140, height: 140)
-                    .offset(x: 6, y: 6)
+                Circle()
+                    .fill(BB.Colors.accent.opacity(0.15))
+                    .frame(width: 120, height: 120)
 
-                // Icon container
-                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusMedium)
-                    .fill(DesignSystem.Colors.mustard)
-                    .frame(width: 140, height: 140)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusMedium)
-                            .stroke(
-                                DesignSystem.Colors.inkBlack,
-                                lineWidth: DesignSystem.Borders.thickness)
-                    )
-
-                // Emoji icon
-                Text(slide.icon)
-                    .font(.system(size: 64))
+                Text("💪")
+                    .font(.system(size: 56))
             }
-            .padding(.bottom, DesignSystem.Spacing.md)
 
             // Headline
-            Text(slide.headline)
-                .font(DesignSystem.Typography.headline(36))
-                .foregroundColor(DesignSystem.Colors.inkBlack)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, DesignSystem.Spacing.lg)
-
-            // Accent text (the hook)
-            Text(slide.accentText)
-                .font(DesignSystem.Typography.body(18))
-                .fontWeight(.bold)
-                .foregroundColor(DesignSystem.Colors.mustard)
-                .padding(.horizontal, DesignSystem.Spacing.sm)
-                .padding(.vertical, DesignSystem.Spacing.xs)
-                .background(DesignSystem.Colors.inkBlack)
-
-            // Subheadline
-            Text(slide.subheadline)
-                .font(DesignSystem.Typography.body(18))
-                .foregroundColor(DesignSystem.Colors.inkGray)
+            Text("Put Your Money\nWhere Your Health Is")
+                .font(BB.Typography.display(32))
+                .foregroundColor(BB.Colors.textPrimary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal, DesignSystem.Spacing.xl)
+
+            // Subhead
+            Text("Willpower is finite. Incentives are powerful.")
+                .font(BB.Typography.body())
+                .foregroundColor(BB.Colors.textSecondary)
+                .multilineTextAlignment(.center)
+
+            // Value prop
+            VStack(spacing: BB.Spacing.sm) {
+                ValuePropRow(icon: "dollarsign.circle.fill", text: "Stake real money on your goals")
+                ValuePropRow(icon: "person.2.fill", text: "Compete with friends")
+                ValuePropRow(icon: "checkmark.shield.fill", text: "Data-verified results")
+            }
+            .padding(.top, BB.Spacing.md)
 
             Spacer()
             Spacer()
         }
+        .padding(.horizontal, BB.Spacing.lg)
     }
 }
 
-// MARK: - Preview
+struct ValuePropRow: View {
+    let icon: String
+    let text: String
+
+    var body: some View {
+        HStack(spacing: BB.Spacing.sm) {
+            Image(systemName: icon)
+                .font(.system(size: 20))
+                .foregroundColor(BB.Colors.accent)
+                .frame(width: 32)
+
+            Text(text)
+                .font(BB.Typography.callout())
+                .foregroundColor(BB.Colors.textPrimary)
+
+            Spacer()
+        }
+        .padding(.horizontal, BB.Spacing.lg)
+    }
+}
+
+// MARK: - Step 1: How It Works
+
+struct HowItWorksStep: View {
+    var body: some View {
+        VStack(spacing: BB.Spacing.lg) {
+            Spacer()
+
+            Text("Here's How It Works")
+                .font(BB.Typography.display(28))
+                .foregroundColor(BB.Colors.textPrimary)
+                .multilineTextAlignment(.center)
+
+            VStack(spacing: BB.Spacing.md) {
+                FlowStep(number: "1", title: "Create", description: "Set the challenge & stake")
+                FlowStep(number: "2", title: "Invite", description: "Get your squad in the pot")
+                FlowStep(number: "3", title: "Sweat", description: "Workouts auto-verified")
+                FlowStep(number: "4", title: "Settle", description: "Survivors split the pot")
+            }
+            .padding(.horizontal, BB.Spacing.md)
+
+            // Consequence callout
+            Text("Miss the goal → lose your stake.")
+                .font(BB.Typography.callout())
+                .fontWeight(.semibold)
+                .foregroundColor(BB.Colors.accent)
+                .padding(.top, BB.Spacing.md)
+
+            Spacer()
+            Spacer()
+        }
+        .padding(.horizontal, BB.Spacing.lg)
+    }
+}
+
+struct FlowStep: View {
+    let number: String
+    let title: String
+    let description: String
+
+    var body: some View {
+        HStack(spacing: BB.Spacing.md) {
+            // Number circle
+            ZStack {
+                Circle()
+                    .fill(BB.Colors.surface)
+                    .frame(width: 40, height: 40)
+
+                Text(number)
+                    .font(BB.Typography.mono(18))
+                    .fontWeight(.bold)
+                    .foregroundColor(BB.Colors.accent)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(BB.Typography.title3())
+                    .foregroundColor(BB.Colors.textPrimary)
+
+                Text(description)
+                    .font(BB.Typography.caption())
+                    .foregroundColor(BB.Colors.textSecondary)
+            }
+
+            Spacer()
+        }
+        .padding(BB.Spacing.sm)
+        .background(BB.Colors.bgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: BB.Radius.md))
+    }
+}
+
+// MARK: - Step 2: Mode Selection
+
+struct ModeSelectionStep: View {
+    @Binding var selectedMode: ChallengeMode
+
+    var body: some View {
+        VStack(spacing: BB.Spacing.lg) {
+            Spacer()
+
+            Text("Pick Your Battle")
+                .font(BB.Typography.display(28))
+                .foregroundColor(BB.Colors.textPrimary)
+
+            Text("Choose how you want to compete")
+                .font(BB.Typography.body())
+                .foregroundColor(BB.Colors.textSecondary)
+
+            VStack(spacing: BB.Spacing.sm) {
+                ModeCard(
+                    mode: .steps,
+                    isSelected: selectedMode == .steps,
+                    action: { selectedMode = .steps }
+                )
+
+                ModeCard(
+                    mode: .distance,
+                    isSelected: selectedMode == .distance,
+                    action: { selectedMode = .distance }
+                )
+
+                ModeCard(
+                    mode: .activeMinutes,
+                    isSelected: selectedMode == .activeMinutes,
+                    action: { selectedMode = .activeMinutes }
+                )
+            }
+            .padding(.horizontal, BB.Spacing.md)
+
+            Spacer()
+            Spacer()
+        }
+        .padding(.horizontal, BB.Spacing.lg)
+    }
+}
+
+struct ModeCard: View {
+    let mode: ChallengeMode
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            BB.Haptics.light()
+            action()
+        }) {
+            HStack(spacing: BB.Spacing.md) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? BB.Colors.accent : BB.Colors.surface)
+                        .frame(width: 48, height: 48)
+
+                    Text(mode.icon)
+                        .font(.system(size: 24))
+                }
+
+                // Text
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(mode.displayName)
+                        .font(BB.Typography.title3())
+                        .foregroundColor(BB.Colors.textPrimary)
+
+                    Text(mode.description)
+                        .font(BB.Typography.caption())
+                        .foregroundColor(BB.Colors.textSecondary)
+                }
+
+                Spacer()
+
+                // Checkmark
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(BB.Colors.accent)
+                }
+            }
+            .padding(BB.Spacing.md)
+            .background(BB.Colors.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: BB.Radius.card))
+            .overlay(
+                RoundedRectangle(cornerRadius: BB.Radius.card)
+                    .stroke(isSelected ? BB.Colors.accent : Color.clear, lineWidth: 2)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Step 3: Connect Tracking
+
+struct ConnectTrackingStep: View {
+    @Binding var hasRequestedHealth: Bool
+
+    var body: some View {
+        VStack(spacing: BB.Spacing.lg) {
+            Spacer()
+
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(BB.Colors.success.opacity(0.15))
+                    .frame(width: 120, height: 120)
+
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 48))
+                    .foregroundColor(BB.Colors.success)
+            }
+
+            Text("No Cheating. Period.")
+                .font(BB.Typography.display(28))
+                .foregroundColor(BB.Colors.textPrimary)
+
+            Text("We sync with Apple Health to verify your workouts automatically.")
+                .font(BB.Typography.body())
+                .foregroundColor(BB.Colors.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, BB.Spacing.lg)
+
+            // Verification badge
+            VerificationBadge()
+
+            // Trust points
+            VStack(alignment: .leading, spacing: BB.Spacing.sm) {
+                TrustPoint(icon: "lock.fill", text: "Read-only access")
+                TrustPoint(icon: "xmark.circle.fill", text: "No manual entry")
+                TrustPoint(icon: "checkmark.circle.fill", text: "Auto-verified results")
+            }
+            .padding(.top, BB.Spacing.md)
+
+            // Mantra
+            Text("If it's not tracked, it didn't happen.")
+                .font(BB.Typography.callout())
+                .fontWeight(.semibold)
+                .foregroundColor(BB.Colors.accent)
+                .padding(.top, BB.Spacing.sm)
+
+            Spacer()
+            Spacer()
+        }
+        .padding(.horizontal, BB.Spacing.lg)
+    }
+}
+
+struct TrustPoint: View {
+    let icon: String
+    let text: String
+
+    var body: some View {
+        HStack(spacing: BB.Spacing.sm) {
+            Image(systemName: icon)
+                .font(.system(size: 16))
+                .foregroundColor(BB.Colors.success)
+                .frame(width: 24)
+
+            Text(text)
+                .font(BB.Typography.body())
+                .foregroundColor(BB.Colors.textPrimary)
+
+            Spacer()
+        }
+        .padding(.horizontal, BB.Spacing.xl)
+    }
+}
+
+// MARK: - Challenge Mode
+
+enum ChallengeMode: String, CaseIterable {
+    case steps
+    case distance
+    case activeMinutes
+
+    var icon: String {
+        switch self {
+        case .steps: return "👟"
+        case .distance: return "🏃"
+        case .activeMinutes: return "⏱️"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .steps: return "Step Showdown"
+        case .distance: return "Distance Derby"
+        case .activeMinutes: return "Active Zone"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .steps: return "Total steps count"
+        case .distance: return "Miles covered"
+        case .activeMinutes: return "Heart-rate minutes"
+        }
+    }
+}
+
+// MARK: - Previews
 
 #Preview("Onboarding Flow") {
     OnboardingView(hasCompletedOnboarding: .constant(false))
 }
 
-#Preview("Slide 1 - Philosophy") {
-    OnboardingSlideView(
-        slide: OnboardingSlide(
-            icon: "💪",
-            headline: "Willpower is Finite.",
-            subheadline:
-                "But incentives are powerful. Better Bet isn't just a fitness tracker—it's an accountability engine that makes skipping workouts cost you.",
-            accentText: "Put your money where your health is."
-        )
-    )
-    .background(DesignSystem.Colors.background)
+#Preview("Value Hook") {
+    ZStack {
+        BB.Colors.bgPrimary.ignoresSafeArea()
+        ValueHookStep()
+    }
+    .preferredColorScheme(.dark)
 }
 
-#Preview("Slide 2 - Flow") {
-    OnboardingSlideView(
-        slide: OnboardingSlide(
-            icon: "🏆",
-            headline: "Here's How It Works.",
-            subheadline:
-                "Create a challenge. Invite your squad. Sweat it out. At the deadline, survivors split the pot—those who miss the mark pay the price.",
-            accentText: "Create → Invite → Sweat → Payout"
-        )
-    )
-    .background(DesignSystem.Colors.background)
+#Preview("How It Works") {
+    ZStack {
+        BB.Colors.bgPrimary.ignoresSafeArea()
+        HowItWorksStep()
+    }
+    .preferredColorScheme(.dark)
 }
 
-#Preview("Slide 3 - Game Modes") {
-    OnboardingSlideView(
-        slide: OnboardingSlide(
-            icon: "📊",
-            headline: "Pick Your Battle.",
-            subheadline:
-                "👟 Step Showdown for walkers\n🏃 Distance Derby for runners\n⏱️ Active Zone for gym-goers",
-            accentText: "Three ways to compete."
-        )
-    )
-    .background(DesignSystem.Colors.background)
+#Preview("Mode Selection") {
+    ZStack {
+        BB.Colors.bgPrimary.ignoresSafeArea()
+        ModeSelectionStep(selectedMode: .constant(.steps))
+    }
+    .preferredColorScheme(.dark)
 }
 
-#Preview("Slide 4 - Verification") {
-    OnboardingSlideView(
-        slide: OnboardingSlide(
-            icon: "📱",
-            headline: "No Cheating. Period.",
-            subheadline:
-                "We sync directly with Apple Health. No manual entry. No honor system. If it's not tracked, it didn't happen.",
-            accentText: "Automatic verification."
-        )
-    )
-    .background(DesignSystem.Colors.background)
+#Preview("Connect Tracking") {
+    ZStack {
+        BB.Colors.bgPrimary.ignoresSafeArea()
+        ConnectTrackingStep(hasRequestedHealth: .constant(false))
+    }
+    .preferredColorScheme(.dark)
 }

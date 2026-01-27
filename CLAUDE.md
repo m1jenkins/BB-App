@@ -84,69 +84,40 @@ Sources/
 
 **Note:** HealthKit requires a physical device. Simulator uses mock data.
 
-## Design Systems
+## Design System
 
-### "Clean Athletic" (Original) - `DesignSystem.swift`
+See **[DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md)** for the complete design language specification.
 
-**Colors:**
-- Background: `#F9F7F1` (warm cream)
-- Ink Black: `#050505` (primary text, borders)
-- Mustard: `#F4D03F` (accents, highlights)
-- Alert Red: `#FF453A` (failed states)
-- Money Green: `#00A86B` (pot values, success)
-- Ink Gray: `#6B6B6B` (secondary text)
+### Quick Reference - `BetterBetDesignSystem.swift`
 
-**Pre-built Components:**
-- `cleanCard()` modifier - 2px border, subtle shadow
-- `PrimaryButtonStyle` - black fill, white text
-- `SecondaryButtonStyle` - outline style
-- `ChunkyButtonStyle` - brutalist with hard shadow (onboarding)
-- `ProgressBar` - clean progress visualization
-- `PotBadge` - circular green badge for pot amounts
-- `StatusBadge` - ON TRACK, AT RISK, FAILED, COMPLETE
+**Philosophy:** Dark-first, high-contrast, fintech-meets-fitness aesthetic.
 
-**Typography:**
-- Headlines: System Serif (black weight)
-- Body: System Sans (medium weight)
+**Core Namespace:** `BB`
 
-**Spacing:** xxs: 4, xs: 8, sm: 12, md: 16, lg: 24, xl: 32, xxl: 48
+| Category | Examples |
+|----------|----------|
+| **Colors** | `BB.Colors.bgPrimary`, `.accent`, `.textPrimary` |
+| **Typography** | `BB.Typography.display()`, `.title()`, `.mono()` |
+| **Spacing** | `BB.Spacing.sm` (12pt), `.md` (16pt), `.lg` (24pt) |
+| **Radius** | `BB.Radius.card` (16), `.button` (14) |
 
----
+**Components:**
+- `ModePill` - Steps/Distance/Active Minutes chips
+- `PotDisplay` - Money amount with accent color
+- `RankChip` - "#2 of 8" position indicator
+- `VerificationBadge` - Read-only status badge
 
-### "Industrial Pop" (Neo-Brutalist) - `IndustrialPopDesignSystem.swift`
+**Button Styles:**
+- `.bbPrimary` - Accent color CTA
+- `.bbSecondary` - Outline style
 
-**Design Philosophy:** Stark, high-stakes, utilitarian - like financial contracts and physical receipts.
+**Modifiers:**
+- `.bbCard()` - Card styling with surface background
+- `.bbBackground()` - Primary background with safe area
 
-**Semantic Color Tokens:**
-- `IndustrialPop.Colors.surfaceMain` - #F2F2F2 (Ghost White)
-- `IndustrialPop.Colors.surfaceCard` - #FFFFFF (Pure White)
-- `IndustrialPop.Colors.textStrong` - #000000 (Jet Black)
-- `IndustrialPop.Colors.brandAccent` - #D6FF00 (Safety Yellow)
-
-**Anti-Design Rules:**
-- Border radius: 0px EVERYWHERE
-- Borders: 3px solid black (thick), 2px (standard)
-- Shadows: Hard offset only (4px 4px 0px #000) - NO BLUR
-
-**Typography:**
-- ALL fonts: Monospace (system `.monospaced`)
-- Headlines: Massive, uppercase, extra heavy weight (800-900)
-- Body: Uppercase preferred for machine-like feel
-
-**Pre-built Components:**
-- `IndustrialLayoutWrapper` - Wrapper enforcing Industrial Pop styling
-- `IndustrialNav` - Monospaced navigation header
-- `.industrial` / `.industrialSecondary` - Button styles with hard shadows
-- `.receiptCard()` modifier - Thick border + hard shadow
-- `.hardShadow()` modifier - 4px offset black shadow
-- `.thickBorder()` modifier - 3px solid black border
-- `ZigzagEdge` - Shape for torn receipt effect
-- `DitheredAvatarView` - B&W halftone-style avatars
-
-**PlaceBet Screen Components:**
-- `CollateralInputSection` - Massive currency input with yellow underline
-- `TermsReceiptCard` - Contract terms with zigzag bottom edge
-- `PeerPressureSection` - Grid of dithered B&W avatars
+### Legacy Design Systems (Deprecated)
+- `DesignSystem.swift` - "Clean Athletic" (light mode)
+- `IndustrialPopDesignSystem.swift` - Neo-Brutalist (light mode)
 
 ## Architecture Patterns
 
