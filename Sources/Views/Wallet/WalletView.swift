@@ -678,9 +678,7 @@ struct WithdrawSheet: View {
     }
 }
 
-// MARK: - WalletTransaction Identifiable
-
-extension WalletTransaction: Identifiable {}
+// Note: WalletTransaction is already Identifiable via @Model
 
 // MARK: - Previews
 
