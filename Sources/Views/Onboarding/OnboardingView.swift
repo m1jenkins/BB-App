@@ -243,7 +243,7 @@ struct FlowStep: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(DesignSystem.Typography.subhead())
+                    .font(DesignSystem.Typography.title())
                     .foregroundColor(DesignSystem.Colors.inkBlack)
 
                 Text(description)
@@ -328,7 +328,7 @@ struct ModeCard: View {
                 // Text
                 VStack(alignment: .leading, spacing: 2) {
                     Text(mode.displayName)
-                        .font(DesignSystem.Typography.subhead())
+                        .font(DesignSystem.Typography.title())
                         .foregroundColor(DesignSystem.Colors.inkBlack)
 
                     Text(mode.description)
