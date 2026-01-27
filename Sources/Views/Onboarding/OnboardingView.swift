@@ -24,13 +24,13 @@ struct OnboardingView: View {
     var body: some View {
         ZStack {
             // Dark background
-            BB.Colors.bgPrimary
+            DesignSystem.Colors.background
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // Progress indicator
                 ProgressIndicator(currentStep: currentStep, totalSteps: 4)
-                    .padding(.top, BB.Spacing.md)
+                    .padding(.top, DesignSystem.Spacing.md)
 
                 // Content
                 TabView(selection: $currentStep) {
@@ -54,13 +54,13 @@ struct OnboardingView: View {
                 .animation(.easeInOut(duration: 0.3), value: currentStep)
 
                 // Bottom CTA
-                VStack(spacing: BB.Spacing.sm) {
+                VStack(spacing: DesignSystem.Spacing.sm) {
                     Button(ctaText) {
-                        BB.Haptics.medium()
+                        // Haptic feedback
                         handleCTA()
                     }
-                    .buttonStyle(.bbPrimary)
-                    .padding(.horizontal, BB.Spacing.lg)
+                    .buttonStyle(.chunky)
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
 
                     // Skip (not on final step)
                     if currentStep < 3 {
@@ -69,11 +69,11 @@ struct OnboardingView: View {
                                 currentStep = 3
                             }
                         }
-                        .font(BB.Typography.caption())
-                        .foregroundColor(BB.Colors.textSecondary)
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundColor(DesignSystem.Colors.inkGray)
                     }
                 }
-                .padding(.bottom, BB.Spacing.xxl)
+                .padding(.bottom, DesignSystem.Spacing.xxl)
             }
         }
         .preferredColorScheme(.dark)
@@ -110,15 +110,15 @@ struct ProgressIndicator: View {
     let totalSteps: Int
 
     var body: some View {
-        HStack(spacing: BB.Spacing.xs) {
+        HStack(spacing: DesignSystem.Spacing.xs) {
             ForEach(0..<totalSteps, id: \.self) { index in
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(index <= currentStep ? BB.Colors.accent : BB.Colors.divider)
+                    .fill(index <= currentStep ? DesignSystem.Colors.mustard : DesignSystem.Colors.inkGray)
                     .frame(height: 3)
                     .animation(.easeInOut(duration: 0.2), value: currentStep)
             }
         }
-        .padding(.horizontal, BB.Spacing.lg)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 }
 
@@ -126,13 +126,13 @@ struct ProgressIndicator: View {
 
 struct ValueHookStep: View {
     var body: some View {
-        VStack(spacing: BB.Spacing.lg) {
+        VStack(spacing: DesignSystem.Spacing.lg) {
             Spacer()
 
             // Icon
             ZStack {
                 Circle()
-                    .fill(BB.Colors.accent.opacity(0.15))
+                    .fill(DesignSystem.Colors.mustard.opacity(0.15))
                     .frame(width: 120, height: 120)
 
                 Text("💪")
@@ -141,29 +141,29 @@ struct ValueHookStep: View {
 
             // Headline
             Text("Put Your Money\nWhere Your Health Is")
-                .font(BB.Typography.display(32))
-                .foregroundColor(BB.Colors.textPrimary)
+                .font(DesignSystem.Typography.display(32))
+                .foregroundColor(DesignSystem.Colors.inkBlack)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
 
             // Subhead
             Text("Willpower is finite. Incentives are powerful.")
-                .font(BB.Typography.body())
-                .foregroundColor(BB.Colors.textSecondary)
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(DesignSystem.Colors.inkGray)
                 .multilineTextAlignment(.center)
 
             // Value prop
-            VStack(spacing: BB.Spacing.sm) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 ValuePropRow(icon: "dollarsign.circle.fill", text: "Stake real money on your goals")
                 ValuePropRow(icon: "person.2.fill", text: "Compete with friends")
                 ValuePropRow(icon: "checkmark.shield.fill", text: "Data-verified results")
             }
-            .padding(.top, BB.Spacing.md)
+            .padding(.top, DesignSystem.Spacing.md)
 
             Spacer()
             Spacer()
         }
-        .padding(.horizontal, BB.Spacing.lg)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 }
 
@@ -172,19 +172,19 @@ struct ValuePropRow: View {
     let text: String
 
     var body: some View {
-        HStack(spacing: BB.Spacing.sm) {
+        HStack(spacing: DesignSystem.Spacing.sm) {
             Image(systemName: icon)
                 .font(.system(size: 20))
-                .foregroundColor(BB.Colors.accent)
+                .foregroundColor(DesignSystem.Colors.mustard)
                 .frame(width: 32)
 
             Text(text)
-                .font(BB.Typography.callout())
-                .foregroundColor(BB.Colors.textPrimary)
+                .font(DesignSystem.Typography.callout())
+                .foregroundColor(DesignSystem.Colors.inkBlack)
 
             Spacer()
         }
-        .padding(.horizontal, BB.Spacing.lg)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 }
 
@@ -192,33 +192,33 @@ struct ValuePropRow: View {
 
 struct HowItWorksStep: View {
     var body: some View {
-        VStack(spacing: BB.Spacing.lg) {
+        VStack(spacing: DesignSystem.Spacing.lg) {
             Spacer()
 
             Text("Here's How It Works")
-                .font(BB.Typography.display(28))
-                .foregroundColor(BB.Colors.textPrimary)
+                .font(DesignSystem.Typography.display(28))
+                .foregroundColor(DesignSystem.Colors.inkBlack)
                 .multilineTextAlignment(.center)
 
-            VStack(spacing: BB.Spacing.md) {
+            VStack(spacing: DesignSystem.Spacing.md) {
                 FlowStep(number: "1", title: "Create", description: "Set the challenge & stake")
                 FlowStep(number: "2", title: "Invite", description: "Get your squad in the pot")
                 FlowStep(number: "3", title: "Sweat", description: "Workouts auto-verified")
                 FlowStep(number: "4", title: "Settle", description: "Survivors split the pot")
             }
-            .padding(.horizontal, BB.Spacing.md)
+            .padding(.horizontal, DesignSystem.Spacing.md)
 
             // Consequence callout
             Text("Miss the goal → lose your stake.")
-                .font(BB.Typography.callout())
+                .font(DesignSystem.Typography.callout())
                 .fontWeight(.semibold)
-                .foregroundColor(BB.Colors.accent)
-                .padding(.top, BB.Spacing.md)
+                .foregroundColor(DesignSystem.Colors.mustard)
+                .padding(.top, DesignSystem.Spacing.md)
 
             Spacer()
             Spacer()
         }
-        .padding(.horizontal, BB.Spacing.lg)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 }
 
@@ -228,34 +228,34 @@ struct FlowStep: View {
     let description: String
 
     var body: some View {
-        HStack(spacing: BB.Spacing.md) {
+        HStack(spacing: DesignSystem.Spacing.md) {
             // Number circle
             ZStack {
                 Circle()
-                    .fill(BB.Colors.surface)
+                    .fill(DesignSystem.Colors.cardWhite)
                     .frame(width: 40, height: 40)
 
                 Text(number)
-                    .font(BB.Typography.mono(18))
+                    .font(DesignSystem.Typography.mono(18))
                     .fontWeight(.bold)
-                    .foregroundColor(BB.Colors.accent)
+                    .foregroundColor(DesignSystem.Colors.mustard)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(BB.Typography.title3())
-                    .foregroundColor(BB.Colors.textPrimary)
+                    .font(DesignSystem.Typography.title3())
+                    .foregroundColor(DesignSystem.Colors.inkBlack)
 
                 Text(description)
-                    .font(BB.Typography.caption())
-                    .foregroundColor(BB.Colors.textSecondary)
+                    .font(DesignSystem.Typography.caption())
+                    .foregroundColor(DesignSystem.Colors.inkGray)
             }
 
             Spacer()
         }
-        .padding(BB.Spacing.sm)
-        .background(BB.Colors.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: BB.Radius.md))
+        .padding(DesignSystem.Spacing.sm)
+        .background(DesignSystem.Colors.cardWhite)
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusButton))
     }
 }
 
@@ -265,18 +265,18 @@ struct ModeSelectionStep: View {
     @Binding var selectedMode: ChallengeMode
 
     var body: some View {
-        VStack(spacing: BB.Spacing.lg) {
+        VStack(spacing: DesignSystem.Spacing.lg) {
             Spacer()
 
             Text("Pick Your Battle")
-                .font(BB.Typography.display(28))
-                .foregroundColor(BB.Colors.textPrimary)
+                .font(DesignSystem.Typography.display(28))
+                .foregroundColor(DesignSystem.Colors.inkBlack)
 
             Text("Choose how you want to compete")
-                .font(BB.Typography.body())
-                .foregroundColor(BB.Colors.textSecondary)
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(DesignSystem.Colors.inkGray)
 
-            VStack(spacing: BB.Spacing.sm) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 ModeCard(
                     mode: .steps,
                     isSelected: selectedMode == .steps,
@@ -295,12 +295,12 @@ struct ModeSelectionStep: View {
                     action: { selectedMode = .activeMinutes }
                 )
             }
-            .padding(.horizontal, BB.Spacing.md)
+            .padding(.horizontal, DesignSystem.Spacing.md)
 
             Spacer()
             Spacer()
         }
-        .padding(.horizontal, BB.Spacing.lg)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 }
 
@@ -311,14 +311,14 @@ struct ModeCard: View {
 
     var body: some View {
         Button(action: {
-            BB.Haptics.light()
+            // Haptic feedback
             action()
         }) {
-            HStack(spacing: BB.Spacing.md) {
+            HStack(spacing: DesignSystem.Spacing.md) {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(isSelected ? BB.Colors.accent : BB.Colors.surface)
+                        .fill(isSelected ? DesignSystem.Colors.mustard : DesignSystem.Colors.cardWhite)
                         .frame(width: 48, height: 48)
 
                     Text(mode.icon)
@@ -328,12 +328,12 @@ struct ModeCard: View {
                 // Text
                 VStack(alignment: .leading, spacing: 2) {
                     Text(mode.displayName)
-                        .font(BB.Typography.title3())
-                        .foregroundColor(BB.Colors.textPrimary)
+                        .font(DesignSystem.Typography.title3())
+                        .foregroundColor(DesignSystem.Colors.inkBlack)
 
                     Text(mode.description)
-                        .font(BB.Typography.caption())
-                        .foregroundColor(BB.Colors.textSecondary)
+                        .font(DesignSystem.Typography.caption())
+                        .foregroundColor(DesignSystem.Colors.inkGray)
                 }
 
                 Spacer()
@@ -342,15 +342,15 @@ struct ModeCard: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundColor(BB.Colors.accent)
+                        .foregroundColor(DesignSystem.Colors.mustard)
                 }
             }
-            .padding(BB.Spacing.md)
-            .background(BB.Colors.bgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: BB.Radius.card))
+            .padding(DesignSystem.Spacing.md)
+            .background(DesignSystem.Colors.cardWhite)
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusCard))
             .overlay(
-                RoundedRectangle(cornerRadius: BB.Radius.card)
-                    .stroke(isSelected ? BB.Colors.accent : Color.clear, lineWidth: 2)
+                RoundedRectangle(cornerRadius: DesignSystem.Borders.radiusCard)
+                    .stroke(isSelected ? DesignSystem.Colors.mustard : Color.clear, lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
@@ -363,52 +363,52 @@ struct ConnectTrackingStep: View {
     @Binding var hasRequestedHealth: Bool
 
     var body: some View {
-        VStack(spacing: BB.Spacing.lg) {
+        VStack(spacing: DesignSystem.Spacing.lg) {
             Spacer()
 
             // Icon
             ZStack {
                 Circle()
-                    .fill(BB.Colors.success.opacity(0.15))
+                    .fill(DesignSystem.Colors.moneyGreen.opacity(0.15))
                     .frame(width: 120, height: 120)
 
                 Image(systemName: "heart.fill")
                     .font(.system(size: 48))
-                    .foregroundColor(BB.Colors.success)
+                    .foregroundColor(DesignSystem.Colors.moneyGreen)
             }
 
             Text("No Cheating. Period.")
-                .font(BB.Typography.display(28))
-                .foregroundColor(BB.Colors.textPrimary)
+                .font(DesignSystem.Typography.display(28))
+                .foregroundColor(DesignSystem.Colors.inkBlack)
 
             Text("We sync with Apple Health to verify your workouts automatically.")
-                .font(BB.Typography.body())
-                .foregroundColor(BB.Colors.textSecondary)
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(DesignSystem.Colors.inkGray)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, BB.Spacing.lg)
+                .padding(.horizontal, DesignSystem.Spacing.lg)
 
             // Verification badge
             VerificationBadge()
 
             // Trust points
-            VStack(alignment: .leading, spacing: BB.Spacing.sm) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                 TrustPoint(icon: "lock.fill", text: "Read-only access")
                 TrustPoint(icon: "xmark.circle.fill", text: "No manual entry")
                 TrustPoint(icon: "checkmark.circle.fill", text: "Auto-verified results")
             }
-            .padding(.top, BB.Spacing.md)
+            .padding(.top, DesignSystem.Spacing.md)
 
             // Mantra
             Text("If it's not tracked, it didn't happen.")
-                .font(BB.Typography.callout())
+                .font(DesignSystem.Typography.callout())
                 .fontWeight(.semibold)
-                .foregroundColor(BB.Colors.accent)
-                .padding(.top, BB.Spacing.sm)
+                .foregroundColor(DesignSystem.Colors.mustard)
+                .padding(.top, DesignSystem.Spacing.sm)
 
             Spacer()
             Spacer()
         }
-        .padding(.horizontal, BB.Spacing.lg)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
     }
 }
 
@@ -417,19 +417,19 @@ struct TrustPoint: View {
     let text: String
 
     var body: some View {
-        HStack(spacing: BB.Spacing.sm) {
+        HStack(spacing: DesignSystem.Spacing.sm) {
             Image(systemName: icon)
                 .font(.system(size: 16))
-                .foregroundColor(BB.Colors.success)
+                .foregroundColor(DesignSystem.Colors.moneyGreen)
                 .frame(width: 24)
 
             Text(text)
-                .font(BB.Typography.body())
-                .foregroundColor(BB.Colors.textPrimary)
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(DesignSystem.Colors.inkBlack)
 
             Spacer()
         }
-        .padding(.horizontal, BB.Spacing.xl)
+        .padding(.horizontal, DesignSystem.Spacing.xl)
     }
 }
 
@@ -473,7 +473,7 @@ enum ChallengeMode: String, CaseIterable {
 
 #Preview("Value Hook") {
     ZStack {
-        BB.Colors.bgPrimary.ignoresSafeArea()
+        DesignSystem.Colors.background.ignoresSafeArea()
         ValueHookStep()
     }
     .preferredColorScheme(.dark)
@@ -481,7 +481,7 @@ enum ChallengeMode: String, CaseIterable {
 
 #Preview("How It Works") {
     ZStack {
-        BB.Colors.bgPrimary.ignoresSafeArea()
+        DesignSystem.Colors.background.ignoresSafeArea()
         HowItWorksStep()
     }
     .preferredColorScheme(.dark)
@@ -489,7 +489,7 @@ enum ChallengeMode: String, CaseIterable {
 
 #Preview("Mode Selection") {
     ZStack {
-        BB.Colors.bgPrimary.ignoresSafeArea()
+        DesignSystem.Colors.background.ignoresSafeArea()
         ModeSelectionStep(selectedMode: .constant(.steps))
     }
     .preferredColorScheme(.dark)
@@ -497,7 +497,7 @@ enum ChallengeMode: String, CaseIterable {
 
 #Preview("Connect Tracking") {
     ZStack {
-        BB.Colors.bgPrimary.ignoresSafeArea()
+        DesignSystem.Colors.background.ignoresSafeArea()
         ConnectTrackingStep(hasRequestedHealth: .constant(false))
     }
     .preferredColorScheme(.dark)
