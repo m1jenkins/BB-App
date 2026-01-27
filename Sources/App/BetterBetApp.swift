@@ -79,6 +79,7 @@ struct ContentView: View {
             } else {
                 // User is signed in but needs onboarding
                 OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                    .environment(healthManager)
             }
         }
         .animation(.easeInOut(duration: 0.3), value: isSignedIn)
