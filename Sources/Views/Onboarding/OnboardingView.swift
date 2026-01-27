@@ -141,7 +141,7 @@ struct ValueHookStep: View {
 
             // Headline
             Text("Put Your Money\nWhere Your Health Is")
-                .font(DesignSystem.Typography.display(32))
+                .font(DesignSystem.Typography.headline(32))
                 .foregroundColor(DesignSystem.Colors.inkBlack)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
@@ -179,7 +179,7 @@ struct ValuePropRow: View {
                 .frame(width: 32)
 
             Text(text)
-                .font(DesignSystem.Typography.callout())
+                .font(DesignSystem.Typography.body())
                 .foregroundColor(DesignSystem.Colors.inkBlack)
 
             Spacer()
@@ -196,7 +196,7 @@ struct HowItWorksStep: View {
             Spacer()
 
             Text("Here's How It Works")
-                .font(DesignSystem.Typography.display(28))
+                .font(DesignSystem.Typography.headline(28))
                 .foregroundColor(DesignSystem.Colors.inkBlack)
                 .multilineTextAlignment(.center)
 
@@ -210,7 +210,7 @@ struct HowItWorksStep: View {
 
             // Consequence callout
             Text("Miss the goal → lose your stake.")
-                .font(DesignSystem.Typography.callout())
+                .font(DesignSystem.Typography.body())
                 .fontWeight(.semibold)
                 .foregroundColor(DesignSystem.Colors.mustard)
                 .padding(.top, DesignSystem.Spacing.md)
@@ -236,14 +236,14 @@ struct FlowStep: View {
                     .frame(width: 40, height: 40)
 
                 Text(number)
-                    .font(DesignSystem.Typography.mono(18))
+                    .font(DesignSystem.Typography.data(18))
                     .fontWeight(.bold)
                     .foregroundColor(DesignSystem.Colors.mustard)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(DesignSystem.Typography.title3())
+                    .font(DesignSystem.Typography.subhead())
                     .foregroundColor(DesignSystem.Colors.inkBlack)
 
                 Text(description)
@@ -269,7 +269,7 @@ struct ModeSelectionStep: View {
             Spacer()
 
             Text("Pick Your Battle")
-                .font(DesignSystem.Typography.display(28))
+                .font(DesignSystem.Typography.headline(28))
                 .foregroundColor(DesignSystem.Colors.inkBlack)
 
             Text("Choose how you want to compete")
@@ -328,7 +328,7 @@ struct ModeCard: View {
                 // Text
                 VStack(alignment: .leading, spacing: 2) {
                     Text(mode.displayName)
-                        .font(DesignSystem.Typography.title3())
+                        .font(DesignSystem.Typography.subhead())
                         .foregroundColor(DesignSystem.Colors.inkBlack)
 
                     Text(mode.description)
@@ -378,7 +378,7 @@ struct ConnectTrackingStep: View {
             }
 
             Text("No Cheating. Period.")
-                .font(DesignSystem.Typography.display(28))
+                .font(DesignSystem.Typography.headline(28))
                 .foregroundColor(DesignSystem.Colors.inkBlack)
 
             Text("We sync with Apple Health to verify your workouts automatically.")
@@ -400,7 +400,7 @@ struct ConnectTrackingStep: View {
 
             // Mantra
             Text("If it's not tracked, it didn't happen.")
-                .font(DesignSystem.Typography.callout())
+                .font(DesignSystem.Typography.body())
                 .fontWeight(.semibold)
                 .foregroundColor(DesignSystem.Colors.mustard)
                 .padding(.top, DesignSystem.Spacing.sm)
