@@ -35,6 +35,8 @@ struct BetterBetApp: App {
             Participant.self,
             Pledge.self,  // Added Pledge model for step tracking
             Friend.self,  // Added Friend model for social features
+            Wallet.self,  // Added Wallet model for money management
+            WalletTransaction.self,  // Added WalletTransaction model for wallet history
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
@@ -95,12 +97,14 @@ struct ContentView: View {
 // MARK: - Main Tab View
 
 /// Main navigation structure after onboarding.
+/// 5-tab design per DESIGN_SYSTEM.md: Home, Challenges, Create+, Wallet, Profile
 struct MainTabView: View {
     @State private var selectedTab = 0
+    @State private var walletManager = WalletManager()
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            // Dashboard Tab
+            // Tab 0: Home (Challenge Feed / Dashboard)
             NavigationStack {
                 DashboardView()
                     .navigationBarTitleDisplayMode(.inline)
@@ -117,7 +121,7 @@ struct MainTabView: View {
 
                         ToolbarItem(placement: .topBarTrailing) {
                             Button {
-                                // Profile action
+                                selectedTab = 4  // Go to Profile
                             } label: {
                                 Image(systemName: "person.circle.fill")
                                     .font(.system(size: 24))
@@ -127,11 +131,11 @@ struct MainTabView: View {
                     }
             }
             .tabItem {
-                Label("Challenge", systemImage: "flame.fill")
+                Label("Home", systemImage: "house.fill")
             }
             .tag(0)
 
-            // Friends Tab
+            // Tab 1: Challenges (Browse / Friends)
             NavigationStack {
                 FriendsView()
                     .navigationBarTitleDisplayMode(.inline)
@@ -148,34 +152,56 @@ struct MainTabView: View {
                     }
             }
             .tabItem {
-                Label("Friends", systemImage: "person.2.fill")
+                Label("Challenges", systemImage: "flag.fill")
             }
             .tag(1)
 
-            // Create Challenge Tab
+            // Tab 2: Create (+) - Commissioner flow
             NavigationStack {
                 CreatePledgeView()
                     .navigationBarTitleDisplayMode(.inline)
             }
             .tabItem {
                 // SEMANTIC FIREWALL: "Pledge" not "Bet"
-                Label("Pledge", systemImage: "plus.circle.fill")
+                Label("Create", systemImage: "plus.circle.fill")
             }
             .tag(2)
 
-            // History Tab (Placeholder)
+            // Tab 3: Wallet - Money layer
             NavigationStack {
-                PlaceholderView(
-                    icon: "clock.arrow.circlepath",
-                    title: "History",
-                    subtitle: "Your past challenges and commitment record will appear here."
-                )
-                .navigationTitle("History")
+                WalletView()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            HStack(spacing: DesignSystem.Spacing.xs) {
+                                Image(systemName: "wallet.pass.fill")
+                                    .foregroundColor(DesignSystem.Colors.moneyGreen)
+                                Text("Wallet")
+                                    .font(DesignSystem.Typography.title(18))
+                                    .foregroundColor(DesignSystem.Colors.inkBlack)
+                            }
+                        }
+                    }
             }
             .tabItem {
-                Label("History", systemImage: "clock.arrow.circlepath")
+                Label("Wallet", systemImage: "wallet.pass.fill")
             }
             .tag(3)
+
+            // Tab 4: Profile - Settings, history
+            NavigationStack {
+                PlaceholderView(
+                    icon: "person.crop.circle",
+                    title: "Profile",
+                    subtitle:
+                        "Your settings, challenge history, and account details will appear here."
+                )
+                .navigationTitle("Profile")
+            }
+            .tabItem {
+                Label("Profile", systemImage: "person.crop.circle")
+            }
+            .tag(4)
         }
         .tint(DesignSystem.Colors.inkBlack)
     }
