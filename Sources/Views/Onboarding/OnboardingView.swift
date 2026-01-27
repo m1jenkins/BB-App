@@ -17,11 +17,9 @@ import SwiftUI
 /// Fast onboarding that shows value, then collects preferences.
 struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
-    @Environment(HealthManager.self) private var healthManager
     @State private var currentStep = 0
     @State private var selectedMode: ChallengeMode = .steps
     @State private var hasRequestedHealth = false
-    @State private var isRequestingHealth = false
 
     var body: some View {
         ZStack {
@@ -68,19 +66,11 @@ struct OnboardingView: View {
                 }
 
                 // Primary CTA
-                Button {
+                Button(ctaText) {
                     BB.Haptics.medium()
                     handleCTA()
-                } label: {
-                    if isRequestingHealth {
-                        ProgressView()
-                            .tint(.black)
-                    } else {
-                        Text(ctaText)
-                    }
                 }
                 .buttonStyle(.bbPrimary)
-                .disabled(isRequestingHealth)
                 .padding(.horizontal, BB.Spacing.lg)
 
                 // Skip (not on final step)
@@ -102,13 +92,6 @@ struct OnboardingView: View {
             )
         }
         .preferredColorScheme(.dark)
-        .onChange(of: healthManager.authorizationStatus) { _, newStatus in
-            // Update UI when authorization status changes
-            if newStatus == .authorized || newStatus == .denied {
-                hasRequestedHealth = true
-                isRequestingHealth = false
-            }
-        }
     }
 
     private var ctaText: String {
@@ -125,12 +108,8 @@ struct OnboardingView: View {
                 currentStep += 1
             }
         } else if !hasRequestedHealth {
-            // Request HealthKit authorization
-            isRequestingHealth = true
-            Task {
-                await healthManager.requestAuthorization()
-                // Note: hasRequestedHealth is set via onChange when status updates
-            }
+            // Would trigger HealthKit permission
+            hasRequestedHealth = true
         } else {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 hasCompletedOnboarding = true
