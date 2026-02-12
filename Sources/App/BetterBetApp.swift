@@ -37,6 +37,7 @@ struct BetterBetApp: App {
             Friend.self,  // Added Friend model for social features
             Wallet.self,  // Added Wallet model for money management
             WalletTransaction.self,  // Added WalletTransaction model for wallet history
+            User.self,  // Added User model for profile
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
@@ -190,13 +191,19 @@ struct MainTabView: View {
 
             // Tab 4: Profile - Settings, history
             NavigationStack {
-                PlaceholderView(
-                    icon: "person.crop.circle",
-                    title: "Profile",
-                    subtitle:
-                        "Your settings, challenge history, and account details will appear here."
-                )
-                .navigationTitle("Profile")
+                ProfileView()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            HStack(spacing: DesignSystem.Spacing.xs) {
+                                Image(systemName: "person.crop.circle.fill")
+                                    .foregroundColor(DesignSystem.Colors.mustard)
+                                Text("Profile")
+                                    .font(DesignSystem.Typography.title(18))
+                                    .foregroundColor(DesignSystem.Colors.inkBlack)
+                            }
+                        }
+                    }
             }
             .tabItem {
                 Label("Profile", systemImage: "person.crop.circle")
